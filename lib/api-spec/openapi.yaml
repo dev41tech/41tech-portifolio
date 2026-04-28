@@ -19,6 +19,8 @@ tags:
     description: Cases management
   - name: technologies
     description: Technologies management
+  - name: settings
+    description: Site settings management
 
 paths:
   /healthz:
@@ -464,6 +466,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
 
+  /settings:
+    get:
+      operationId: getSiteSettings
+      tags: [settings]
+      summary: Get site settings (public)
+      responses:
+        "200":
+          description: Site settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+    put:
+      operationId: updateSiteSettings
+      tags: [settings]
+      summary: Update site settings (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSiteSettingsBody"
+      responses:
+        "200":
+          description: Updated site settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /stats/summary:
     get:
       operationId: getStatsSummary
@@ -565,6 +603,18 @@ components:
         coverImageUrl:
           type: string
           nullable: true
+        thumbnailUrl:
+          type: string
+          nullable: true
+        galleryImages:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        metricsSummary:
+          type: string
+          nullable: true
         demoUrl:
           type: string
           nullable: true
@@ -613,6 +663,18 @@ components:
         coverImageUrl:
           type: string
           nullable: true
+        thumbnailUrl:
+          type: string
+          nullable: true
+        galleryImages:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        metricsSummary:
+          type: string
+          nullable: true
         demoUrl:
           type: string
           nullable: true
@@ -629,6 +691,69 @@ components:
         - shortDescription
         - status
         - featured
+
+    SiteSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        heroVideoUrl:
+          type: string
+          nullable: true
+        heroVideoEnabled:
+          type: boolean
+        heroFallbackImageUrl:
+          type: string
+          nullable: true
+        whatsappUrl:
+          type: string
+          nullable: true
+        contactEmail:
+          type: string
+          nullable: true
+        linkedinUrl:
+          type: string
+          nullable: true
+        ctaPrimaryLabel:
+          type: string
+        ctaSecondaryLabel:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - heroVideoEnabled
+        - ctaPrimaryLabel
+        - ctaSecondaryLabel
+        - createdAt
+        - updatedAt
+
+    UpdateSiteSettingsBody:
+      type: object
+      properties:
+        heroVideoUrl:
+          type: string
+          nullable: true
+        heroVideoEnabled:
+          type: boolean
+        heroFallbackImageUrl:
+          type: string
+          nullable: true
+        whatsappUrl:
+          type: string
+          nullable: true
+        contactEmail:
+          type: string
+          nullable: true
+        linkedinUrl:
+          type: string
+          nullable: true
+        ctaPrimaryLabel:
+          type: string
+        ctaSecondaryLabel:
+          type: string
 
     TeamMember:
       type: object

@@ -15,6 +15,10 @@ export interface CreateProjectBody {
   solution?: string | null;
   result?: string | null;
   coverImageUrl?: string | null;
+  thumbnailUrl?: string | null;
+  galleryImages?: string | null;
+  category?: string | null;
+  metricsSummary?: string | null;
   demoUrl?: string | null;
   repositoryUrl?: string | null;
   status: string;

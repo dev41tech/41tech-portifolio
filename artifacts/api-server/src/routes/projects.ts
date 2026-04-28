@@ -6,25 +6,8 @@ import { requireAuth } from "../middlewares/requireAuth";
 
 const router = Router();
 
-router.get("/", async (req: Request, res: Response) => {
-  const parsed = ListProjectsQueryParams.safeParse(req.query);
-  const params = parsed.success ? parsed.data : {};
-
-  let query = db.select().from(projectsTable).$dynamic();
-
-  const conditions: Parameters<typeof query.where>[0][] = [];
-  if (params.featured !== undefined) {
-    conditions.push(eq(projectsTable.featured, params.featured));
-  }
-  if (params.status !== undefined) {
-    conditions.push(eq(projectsTable.status, params.status));
-  }
-
-  const rows = await db.select().from(projectsTable)
-    .where(conditions.length > 0 ? conditions[0] : undefined)
-    .orderBy(projectsTable.createdAt);
-
-  const projects = rows.map((p) => ({
+function mapProject(p: typeof projectsTable.$inferSelect) {
+  return {
     id: p.id,
     title: p.title,
     slug: p.slug,
@@ -34,15 +17,26 @@ router.get("/", async (req: Request, res: Response) => {
     solution: p.solution,
     result: p.result,
     coverImageUrl: p.coverImageUrl,
+    thumbnailUrl: p.thumbnailUrl,
+    galleryImages: p.galleryImages,
+    category: p.category,
+    metricsSummary: p.metricsSummary,
     demoUrl: p.demoUrl,
     repositoryUrl: p.repositoryUrl,
     status: p.status,
     featured: p.featured,
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
-  }));
+  };
+}
 
-  // Apply featured filter in JS if needed (workaround for dynamic conditions)
+router.get("/", async (req: Request, res: Response) => {
+  const parsed = ListProjectsQueryParams.safeParse(req.query);
+  const params = parsed.success ? parsed.data : {};
+
+  const rows = await db.select().from(projectsTable).orderBy(projectsTable.createdAt);
+  const projects = rows.map(mapProject);
+
   const filtered = params.featured !== undefined
     ? projects.filter((p) => p.featured === params.featured)
     : projects;
@@ -67,17 +61,17 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     solution: data.solution ?? null,
     result: data.result ?? null,
     coverImageUrl: data.coverImageUrl ?? null,
+    thumbnailUrl: data.thumbnailUrl ?? null,
+    galleryImages: data.galleryImages ?? null,
+    category: data.category ?? null,
+    metricsSummary: data.metricsSummary ?? null,
     demoUrl: data.demoUrl ?? null,
     repositoryUrl: data.repositoryUrl ?? null,
     status: data.status,
     featured: data.featured,
   }).returning();
 
-  res.status(201).json({
-    ...project,
-    createdAt: project.createdAt.toISOString(),
-    updatedAt: project.updatedAt.toISOString(),
-  });
+  res.status(201).json(mapProject(project));
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {
@@ -90,11 +84,7 @@ router.get("/:slug", async (req: Request, res: Response) => {
     return;
   }
 
-  res.json({
-    ...project,
-    createdAt: project.createdAt.toISOString(),
-    updatedAt: project.updatedAt.toISOString(),
-  });
+  res.json(mapProject(project));
 });
 
 router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
@@ -116,6 +106,10 @@ router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
       solution: data.solution ?? null,
       result: data.result ?? null,
       coverImageUrl: data.coverImageUrl ?? null,
+      thumbnailUrl: data.thumbnailUrl ?? null,
+      galleryImages: data.galleryImages ?? null,
+      category: data.category ?? null,
+      metricsSummary: data.metricsSummary ?? null,
       demoUrl: data.demoUrl ?? null,
       repositoryUrl: data.repositoryUrl ?? null,
       status: data.status,
@@ -130,11 +124,7 @@ router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
     return;
   }
 
-  res.json({
-    ...project,
-    createdAt: project.createdAt.toISOString(),
-    updatedAt: project.updatedAt.toISOString(),
-  });
+  res.json(mapProject(project));
 });
 
 router.delete("/:slug", requireAuth, async (req: Request, res: Response) => {

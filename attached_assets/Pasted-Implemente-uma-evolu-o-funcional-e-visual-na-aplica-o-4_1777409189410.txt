@@ -1,0 +1,388 @@
+Implemente uma evolução funcional e visual na aplicação 41 Tech Portfolio já existente.
+
+Contexto:
+O projeto é uma aplicação web em Next.js/React para portfólio profissional e landing page comercial da 41 Tech. A aplicação já possui área pública, área admin, projetos, cases, equipe e tecnologias. Agora preciso corrigir lacunas importantes de funcionalidade e preparar o projeto para deploy em VPS via Docker.
+
+Objetivo principal:
+Transformar o portfólio em uma landing page profissional, administrável e pronta para produção, com suporte a mídia, CTAs funcionais, imagens de projetos e Dockerfile.
+
+NÃO faça:
+- Não remova funcionalidades existentes.
+- Não altere as rotas públicas existentes.
+- Não exponha o login admin no site público.
+- Não quebre o CRUD atual.
+- Não substitua o design atual por template genérico.
+
+Rotas existentes que devem continuar funcionando:
+- /
+- /projetos
+- /projetos/[slug]
+- /equipe
+- /admin-41tech/login
+- /admin-41tech/dashboard
+- /admin-41tech/projects
+- /admin-41tech/cases
+- /admin-41tech/team
+- /admin-41tech/technologies
+
+====================================================================
+1. MÍDIA NO ADMIN PARA PROJETOS
+====================================================================
+
+Hoje o admin só permite cadastrar texto nos projetos. Adicione suporte para imagens e prévias visuais.
+
+No cadastro/edição de projetos, adicionar campos:
+
+- cover_image_url
+  Campo para URL da imagem principal/capa do projeto.
+
+- thumbnail_url
+  Campo para URL da imagem menor usada nos cards.
+
+- gallery_images
+  Campo para múltiplas URLs de imagens, podendo ser uma lista separada por quebra de linha ou vírgula.
+
+- demo_url
+  Campo para link de demonstração do projeto.
+
+- repository_url
+  Campo para link do repositório, caso seja público.
+
+- category
+  Campo select com opções:
+  - Sistema Web
+  - BI & Dados
+  - Automação
+  - Integração
+  - IA
+  - Infra & Deploy
+  - ERP
+  - Outro
+
+- metrics_summary
+  Campo para destacar resultado em formato curto.
+  Exemplo:
+  “-60% tempo operacional | 100% centralização | Dados em tempo real”
+
+Regras:
+- Se cover_image_url existir, usar na página de detalhe do projeto.
+- Se thumbnail_url existir, usar nos cards.
+- Se não houver imagem, manter fallback premium com gradiente/ícone.
+- Nunca quebrar a interface se uma URL estiver vazia.
+- Exibir preview da imagem dentro do modal/formulário admin quando a URL for preenchida.
+
+====================================================================
+2. HERO COM VÍDEO CONFIGURÁVEL VIA ADMIN
+====================================================================
+
+Hoje o hero permite vídeo, mas não existe controle no painel admin.
+
+Criar uma nova área no admin chamada:
+
+/admin-41tech/settings
+
+Também adicionar item “Configurações” no menu lateral do admin.
+
+Criar configuração geral do site com os campos:
+
+- hero_video_url
+  URL do vídeo usado no fundo do hero.
+
+- hero_video_enabled
+  Toggle true/false para ativar ou desativar vídeo.
+
+- hero_fallback_image_url
+  Imagem usada caso o vídeo não carregue.
+
+- whatsapp_url
+  Link principal de WhatsApp/contato.
+
+- contact_email
+  E-mail principal de contato.
+
+- linkedin_url
+  Link da página do LinkedIn, caso exista.
+
+- cta_primary_label
+  Texto do botão principal.
+  Valor padrão: “Quero automatizar minha operação”
+
+- cta_secondary_label
+  Texto do botão secundário.
+  Valor padrão: “Ver projetos”
+
+Comportamento:
+- Na home, se hero_video_enabled for true e hero_video_url existir, renderizar vídeo em background com:
+  autoplay
+  muted
+  loop
+  playsInline
+  preload metadata
+- Aplicar blur leve, overlay escuro e gradiente azul/preto sobre o vídeo.
+- Se o vídeo falhar ou estiver desativado, usar fallback visual com hero_fallback_image_url ou gradiente premium.
+- O admin deve conseguir alterar essas configurações sem mexer no código.
+
+====================================================================
+3. BOTÕES E CTAs FUNCIONAIS
+====================================================================
+
+Hoje os botões “Falar com a 41 Tech” e “Transformar meu processo” não executam ação. Corrija isso.
+
+Regras:
+
+- Botões “Falar com a 41 Tech”
+  Devem abrir o whatsapp_url configurado em settings.
+  Abrir em nova aba.
+
+- Botão principal do hero
+  Deve abrir o whatsapp_url configurado.
+  Se whatsapp_url estiver vazio, deve rolar para uma seção de contato.
+
+- Botão “Ver projetos”
+  Deve rolar suavemente para a seção de projetos em destaque ou navegar para /projetos.
+
+- Cards/membros da equipe
+  Ao clicar em um membro:
+  - Se tiver linkedin_url, abrir em nova aba.
+  - Se não tiver linkedin_url, abrir modal com detalhes do membro.
+  - O card deve ter cursor pointer e feedback visual.
+
+- Links de projeto:
+  - “Ver detalhes” deve navegar para /projetos/[slug].
+  - Se demo_url existir, mostrar botão “Ver demonstração”.
+  - Se repository_url existir, mostrar botão “Repositório”.
+
+====================================================================
+4. MELHORIAS NOS CARDS DE PROJETOS
+====================================================================
+
+Atualize os cards públicos de projetos para vender melhor.
+
+Cada card deve mostrar:
+
+- Imagem/thumbnail ou fallback premium.
+- Título.
+- Descrição curta.
+- Categoria.
+- Badge “Destaque” quando featured = true.
+- Tecnologias usadas.
+- Métrica principal, se metrics_summary existir.
+- Botão “Ver detalhes”.
+
+Hover:
+- Elevação leve.
+- Glow azul royal.
+- Scale sutil.
+- Movimento suave da imagem.
+- Borda com gradiente discreto.
+
+Na página /projetos:
+- Adicionar filtros por categoria.
+- Adicionar busca por título/descrição.
+- Melhorar empty state.
+
+====================================================================
+5. PÁGINA DE DETALHE DO PROJETO
+====================================================================
+
+Melhore a página /projetos/[slug].
+
+Deve conter:
+
+- Hero do projeto com cover_image_url ou fallback premium.
+- Badge da categoria.
+- Badge de destaque.
+- Título.
+- Descrição curta.
+- Blocos:
+  - Visão Geral
+  - Problema
+  - Solução
+  - Resultado
+- Métricas destacadas em cards, extraídas de metrics_summary quando possível.
+- Tecnologias usadas.
+- Galeria de imagens usando gallery_images.
+- Botões:
+  - Ver demonstração, se demo_url existir.
+  - Repositório, se repository_url existir.
+  - Falar com a 41 Tech, usando whatsapp_url das settings.
+
+====================================================================
+6. MELHORIAS NA EQUIPE
+====================================================================
+
+No admin de equipe, adicionar/garantir campos:
+
+- avatar_url
+- linkedin_url
+- github_url
+- portfolio_url
+- skills
+- bio
+- role_title
+- is_active
+- sort_order
+
+Na página pública /equipe:
+- Cards com avatar real se avatar_url existir.
+- Se não existir avatar, usar iniciais.
+- Clique no card deve abrir linkedin_url ou modal de detalhes.
+- Mostrar projetos relacionados ao membro, se houver owner_member_id nos projetos.
+- Melhorar hover dos cards.
+
+====================================================================
+7. FORMULÁRIO OU SEÇÃO DE CONTATO
+====================================================================
+
+Criar uma seção de contato na home com id="contato".
+
+Campos:
+- Nome
+- Empresa
+- E-mail ou WhatsApp
+- O que você quer automatizar/melhorar?
+
+No primeiro momento, pode funcionar de forma simples:
+- Ao enviar, abrir WhatsApp com mensagem pré-preenchida usando os dados do formulário.
+
+Mensagem exemplo:
+“Olá, sou [nome], da empresa [empresa]. Quero falar com a 41 Tech sobre: [descrição]. Meu contato é [contato].”
+
+Se whatsapp_url estiver configurado, usar esse link.
+Se não estiver, mostrar mensagem de erro amigável.
+
+====================================================================
+8. CONFIGURAÇÃO DE BANCO / MODELOS
+====================================================================
+
+Atualize os modelos/tabelas conforme necessário.
+
+Adicionar ou garantir os campos em projects:
+
+- cover_image_url
+- thumbnail_url
+- gallery_images
+- demo_url
+- repository_url
+- category
+- metrics_summary
+
+Criar tabela site_settings ou estrutura equivalente:
+
+site_settings:
+- id
+- hero_video_url
+- hero_video_enabled
+- hero_fallback_image_url
+- whatsapp_url
+- contact_email
+- linkedin_url
+- cta_primary_label
+- cta_secondary_label
+- created_at
+- updated_at
+
+Se o projeto estiver usando dados mockados, atualizar também os mocks para incluir esses novos campos.
+
+Importante:
+- Criar migration se o projeto usar ORM.
+- Atualizar seed/demo data.
+- Garantir que build não quebre caso o banco ainda não esteja configurado.
+
+====================================================================
+9. DOCKERFILE OBRIGATÓRIO PARA VPS
+====================================================================
+
+O projeto deve conter um Dockerfile funcional na raiz.
+
+Objetivo:
+Permitir build e execução do projeto Next.js em VPS via Docker/EasyPanel.
+
+Criar/ajustar:
+
+- Dockerfile
+- .dockerignore
+- docker-compose.yml opcional, mas recomendado
+- README com instruções de deploy
+
+Dockerfile deve:
+- Usar Node LTS Alpine.
+- Instalar dependências.
+- Rodar build.
+- Rodar app em produção.
+- Expor porta 3000.
+- Usar npm run start ou comando equivalente.
+- Funcionar com Next.js.
+
+Exemplo de requisitos:
+- Multi-stage build.
+- Não copiar node_modules local.
+- Usar variáveis de ambiente em runtime.
+- Não expor secrets no Dockerfile.
+
+Criar .dockerignore com:
+node_modules
+.next
+.git
+.env
+.env.local
+npm-debug.log
+README.md opcional
+
+No README, documentar:
+
+Como rodar local:
+npm install
+npm run dev
+
+Como buildar:
+npm run build
+
+Como rodar com Docker:
+docker build -t 41tech-portfolio .
+docker run -p 3000:3000 --env-file .env 41tech-portfolio
+
+Variáveis esperadas no .env.example:
+DATABASE_URL=
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+JWT_SECRET=
+NEXT_PUBLIC_SITE_URL=
+NEXT_PUBLIC_WHATSAPP_URL=
+
+====================================================================
+10. QUALIDADE, SEGURANÇA E VALIDAÇÕES
+====================================================================
+
+Garantir:
+
+- Nenhuma rota admin aparece no menu público.
+- Usuário não autenticado não acessa admin.
+- Links externos usam target="_blank" e rel="noopener noreferrer".
+- Campos de URL devem aceitar vazio sem quebrar.
+- Imagens externas devem ter fallback.
+- Formulários devem validar campos obrigatórios.
+- Não quebrar responsividade.
+- npm run build deve funcionar.
+- npm run dev deve funcionar.
+
+Smoke tests obrigatórios:
+
+1. Home carrega sem erro.
+2. Hero usa vídeo se configurado.
+3. Hero usa fallback se vídeo estiver vazio/desativado.
+4. Botão “Falar com a 41 Tech” abre WhatsApp.
+5. Botão principal do hero abre WhatsApp ou contato.
+6. /projetos lista projetos com imagem.
+7. Filtro por categoria funciona.
+8. Busca de projetos funciona.
+9. /projetos/[slug] mostra capa, métricas e galeria.
+10. Admin permite editar imagens do projeto.
+11. Admin permite configurar vídeo do hero.
+12. Admin permite configurar WhatsApp.
+13. Cards de equipe são clicáveis.
+14. Docker build funciona.
+15. Container sobe na porta 3000.
+
+Critério final:
+Ao terminar, entregue uma aplicação mais completa, com mídia administrável, CTAs funcionais, projetos visualmente mais fortes e Dockerfile pronto para deploy em VPS.

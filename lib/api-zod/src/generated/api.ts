@@ -66,6 +66,10 @@ export const ListProjectsResponseItem = zod.object({
   solution: zod.string().nullish(),
   result: zod.string().nullish(),
   coverImageUrl: zod.string().nullish(),
+  thumbnailUrl: zod.string().nullish(),
+  galleryImages: zod.string().nullish(),
+  category: zod.string().nullish(),
+  metricsSummary: zod.string().nullish(),
   demoUrl: zod.string().nullish(),
   repositoryUrl: zod.string().nullish(),
   status: zod.string(),
@@ -87,6 +91,10 @@ export const CreateProjectBody = zod.object({
   solution: zod.string().nullish(),
   result: zod.string().nullish(),
   coverImageUrl: zod.string().nullish(),
+  thumbnailUrl: zod.string().nullish(),
+  galleryImages: zod.string().nullish(),
+  category: zod.string().nullish(),
+  metricsSummary: zod.string().nullish(),
   demoUrl: zod.string().nullish(),
   repositoryUrl: zod.string().nullish(),
   status: zod.string(),
@@ -110,6 +118,10 @@ export const GetProjectResponse = zod.object({
   solution: zod.string().nullish(),
   result: zod.string().nullish(),
   coverImageUrl: zod.string().nullish(),
+  thumbnailUrl: zod.string().nullish(),
+  galleryImages: zod.string().nullish(),
+  category: zod.string().nullish(),
+  metricsSummary: zod.string().nullish(),
   demoUrl: zod.string().nullish(),
   repositoryUrl: zod.string().nullish(),
   status: zod.string(),
@@ -134,6 +146,10 @@ export const UpdateProjectBody = zod.object({
   solution: zod.string().nullish(),
   result: zod.string().nullish(),
   coverImageUrl: zod.string().nullish(),
+  thumbnailUrl: zod.string().nullish(),
+  galleryImages: zod.string().nullish(),
+  category: zod.string().nullish(),
+  metricsSummary: zod.string().nullish(),
   demoUrl: zod.string().nullish(),
   repositoryUrl: zod.string().nullish(),
   status: zod.string(),
@@ -150,6 +166,10 @@ export const UpdateProjectResponse = zod.object({
   solution: zod.string().nullish(),
   result: zod.string().nullish(),
   coverImageUrl: zod.string().nullish(),
+  thumbnailUrl: zod.string().nullish(),
+  galleryImages: zod.string().nullish(),
+  category: zod.string().nullish(),
+  metricsSummary: zod.string().nullish(),
   demoUrl: zod.string().nullish(),
   repositoryUrl: zod.string().nullish(),
   status: zod.string(),
@@ -423,6 +443,51 @@ export const DeleteTechnologyParams = zod.object({
 
 export const DeleteTechnologyResponse = zod.object({
   success: zod.boolean(),
+});
+
+/**
+ * @summary Get site settings (public)
+ */
+export const GetSiteSettingsResponse = zod.object({
+  id: zod.number(),
+  heroVideoUrl: zod.string().nullish(),
+  heroVideoEnabled: zod.boolean(),
+  heroFallbackImageUrl: zod.string().nullish(),
+  whatsappUrl: zod.string().nullish(),
+  contactEmail: zod.string().nullish(),
+  linkedinUrl: zod.string().nullish(),
+  ctaPrimaryLabel: zod.string(),
+  ctaSecondaryLabel: zod.string(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+
+/**
+ * @summary Update site settings (admin only)
+ */
+export const UpdateSiteSettingsBody = zod.object({
+  heroVideoUrl: zod.string().nullish(),
+  heroVideoEnabled: zod.boolean().optional(),
+  heroFallbackImageUrl: zod.string().nullish(),
+  whatsappUrl: zod.string().nullish(),
+  contactEmail: zod.string().nullish(),
+  linkedinUrl: zod.string().nullish(),
+  ctaPrimaryLabel: zod.string().optional(),
+  ctaSecondaryLabel: zod.string().optional(),
+});
+
+export const UpdateSiteSettingsResponse = zod.object({
+  id: zod.number(),
+  heroVideoUrl: zod.string().nullish(),
+  heroVideoEnabled: zod.boolean(),
+  heroFallbackImageUrl: zod.string().nullish(),
+  whatsappUrl: zod.string().nullish(),
+  contactEmail: zod.string().nullish(),
+  linkedinUrl: zod.string().nullish(),
+  ctaPrimaryLabel: zod.string(),
+  ctaSecondaryLabel: zod.string(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
 });
 
 /**

@@ -43,6 +43,10 @@ export interface Project {
   solution?: string | null;
   result?: string | null;
   coverImageUrl?: string | null;
+  thumbnailUrl?: string | null;
+  galleryImages?: string | null;
+  category?: string | null;
+  metricsSummary?: string | null;
   demoUrl?: string | null;
   repositoryUrl?: string | null;
   status: string;
@@ -60,10 +64,39 @@ export interface CreateProjectBody {
   solution?: string | null;
   result?: string | null;
   coverImageUrl?: string | null;
+  thumbnailUrl?: string | null;
+  galleryImages?: string | null;
+  category?: string | null;
+  metricsSummary?: string | null;
   demoUrl?: string | null;
   repositoryUrl?: string | null;
   status: string;
   featured: boolean;
+}
+
+export interface SiteSettings {
+  id: number;
+  heroVideoUrl?: string | null;
+  heroVideoEnabled: boolean;
+  heroFallbackImageUrl?: string | null;
+  whatsappUrl?: string | null;
+  contactEmail?: string | null;
+  linkedinUrl?: string | null;
+  ctaPrimaryLabel: string;
+  ctaSecondaryLabel: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateSiteSettingsBody {
+  heroVideoUrl?: string | null;
+  heroVideoEnabled?: boolean;
+  heroFallbackImageUrl?: string | null;
+  whatsappUrl?: string | null;
+  contactEmail?: string | null;
+  linkedinUrl?: string | null;
+  ctaPrimaryLabel?: string;
+  ctaSecondaryLabel?: string;
 }
 
 export interface TeamMember {

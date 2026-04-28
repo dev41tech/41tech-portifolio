@@ -7,7 +7,8 @@ import {
   Briefcase, 
   Cpu, 
   LogOut,
-  Loader2
+  Loader2,
+  Settings2
 } from "lucide-react";
 import { useGetMe, useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/admin-41tech/cases", label: "Cases", icon: Briefcase },
     { href: "/admin-41tech/team", label: "Equipe", icon: Users },
     { href: "/admin-41tech/technologies", label: "Tecnologias", icon: Cpu },
+    { href: "/admin-41tech/settings", label: "Configurações", icon: Settings2 },
   ];
 
   return (

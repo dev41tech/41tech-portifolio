@@ -54,6 +54,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const projectSchema = z.object({
   title: z.string().min(2, "Título é obrigatório"),
@@ -64,6 +65,10 @@ const projectSchema = z.object({
   solution: z.string().optional().nullable(),
   result: z.string().optional().nullable(),
   coverImageUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  thumbnailUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  galleryImages: z.string().optional().nullable(),
+  category: z.string().optional().nullable(),
+  metricsSummary: z.string().optional().nullable(),
   demoUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
   repositoryUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
   status: z.string().min(1, "Status é obrigatório"),
@@ -97,6 +102,10 @@ export default function AdminProjects() {
       solution: "",
       result: "",
       coverImageUrl: "",
+      thumbnailUrl: "",
+      galleryImages: "",
+      category: "",
+      metricsSummary: "",
       demoUrl: "",
       repositoryUrl: "",
       status: "published",
@@ -114,6 +123,10 @@ export default function AdminProjects() {
       solution: "",
       result: "",
       coverImageUrl: "",
+      thumbnailUrl: "",
+      galleryImages: "",
+      category: "",
+      metricsSummary: "",
       demoUrl: "",
       repositoryUrl: "",
       status: "published",
@@ -133,6 +146,10 @@ export default function AdminProjects() {
       solution: project.solution || "",
       result: project.result || "",
       coverImageUrl: project.coverImageUrl || "",
+      thumbnailUrl: project.thumbnailUrl || "",
+      galleryImages: project.galleryImages || "",
+      category: project.category || "",
+      metricsSummary: project.metricsSummary || "",
       demoUrl: project.demoUrl || "",
       repositoryUrl: project.repositoryUrl || "",
       status: project.status,
@@ -148,7 +165,6 @@ export default function AdminProjects() {
   };
 
   const onSubmit = (values: ProjectFormValues) => {
-    // Convert empty strings to null for optional fields
     const data = {
       ...values,
       fullDescription: values.fullDescription || null,
@@ -156,6 +172,10 @@ export default function AdminProjects() {
       solution: values.solution || null,
       result: values.result || null,
       coverImageUrl: values.coverImageUrl || null,
+      thumbnailUrl: values.thumbnailUrl || null,
+      galleryImages: values.galleryImages || null,
+      category: values.category || null,
+      metricsSummary: values.metricsSummary || null,
       demoUrl: values.demoUrl || null,
       repositoryUrl: values.repositoryUrl || null,
     };
@@ -252,10 +272,49 @@ export default function AdminProjects() {
                     )} />
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField control={form.control} name="category" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categoria</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Selecione a categoria" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Sistema Web">Sistema Web</SelectItem>
+                            <SelectItem value="BI & Dados">BI & Dados</SelectItem>
+                            <SelectItem value="Automação">Automação</SelectItem>
+                            <SelectItem value="Integração">Integração</SelectItem>
+                            <SelectItem value="IA">IA</SelectItem>
+                            <SelectItem value="Infra & Deploy">Infra & Deploy</SelectItem>
+                            <SelectItem value="ERP">ERP</SelectItem>
+                            <SelectItem value="Outro">Outro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="status" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
                   <FormField control={form.control} name="shortDescription" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Descrição Curta</FormLabel>
                       <FormControl><Textarea {...field} className="h-20" /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  
+                  <FormField control={form.control} name="metricsSummary" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Métricas de Resultado (resumo)</FormLabel>
+                      <FormControl><Input {...field} value={field.value || ""} placeholder="-60% tempo | 100% centralização" /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
@@ -297,16 +356,27 @@ export default function AdminProjects() {
                       <FormItem>
                         <FormLabel>URL da Imagem de Capa</FormLabel>
                         <FormControl><Input {...field} value={field.value || ""} /></FormControl>
+                        {field.value && <img src={field.value} alt="Preview" className="mt-2 h-20 w-auto object-cover rounded" />}
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="status" render={({ field }) => (
+                    <FormField control={form.control} name="thumbnailUrl" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
+                        <FormLabel>URL da Thumbnail (cards)</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} /></FormControl>
+                        {field.value && <img src={field.value} alt="Preview" className="mt-2 h-20 w-auto object-cover rounded" />}
                         <FormMessage />
                       </FormItem>
                     )} />
+                    <div className="md:col-span-2">
+                      <FormField control={form.control} name="galleryImages" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URLs da Galeria (uma por linha ou separada por vírgula)</FormLabel>
+                          <FormControl><Textarea {...field} value={field.value || ""} className="h-24" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    </div>
                     <FormField control={form.control} name="demoUrl" render={({ field }) => (
                       <FormItem>
                         <FormLabel>URL do Demo</FormLabel>
@@ -354,6 +424,7 @@ export default function AdminProjects() {
           <TableHeader>
             <TableRow>
               <TableHead>Projeto</TableHead>
+              <TableHead>Categoria</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Destaque</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -364,6 +435,7 @@ export default function AdminProjects() {
               Array.from({ length: 3 }).map((_, i) => (
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                   <TableCell className="text-right"><Skeleton className="h-8 w-24 inline-block" /></TableCell>
@@ -371,7 +443,7 @@ export default function AdminProjects() {
               ))
             ) : projects?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                   Nenhum projeto encontrado.
                 </TableCell>
               </TableRow>
@@ -381,6 +453,13 @@ export default function AdminProjects() {
                   <TableCell>
                     <div className="font-medium text-foreground">{project.title}</div>
                     <div className="text-sm text-muted-foreground truncate max-w-md">{project.shortDescription}</div>
+                  </TableCell>
+                  <TableCell>
+                    {project.category ? (
+                      <Badge variant="secondary">{project.category}</Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">-</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="capitalize">

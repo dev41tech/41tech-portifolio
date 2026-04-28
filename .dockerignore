@@ -1,0 +1,15 @@
+node_modules
+.git
+.gitignore
+*.log
+.env
+.env.local
+.env.development
+.env.production
+artifacts/41tech/dist
+artifacts/api-server/dist
+lib/*/dist
+attached_assets
+.local
+README.md
+docker-compose.yml

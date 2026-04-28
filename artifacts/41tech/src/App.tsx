@@ -21,6 +21,7 @@ import AdminProjects from "@/pages/admin/Projects";
 import AdminTeam from "@/pages/admin/Team";
 import AdminCases from "@/pages/admin/Cases";
 import AdminTechnologies from "@/pages/admin/Technologies";
+import AdminSettings from "@/pages/admin/Settings";
 
 import NotFound from "@/pages/not-found";
 
@@ -44,6 +45,9 @@ function Router() {
       {/* Admin Routes */}
       <Route path="/admin-41tech/login" component={AdminLogin} />
       
+      <Route path="/admin-41tech/settings">
+        <AdminLayout><AdminSettings /></AdminLayout>
+      </Route>
       <Route path="/admin-41tech/dashboard">
         <AdminLayout><AdminDashboard /></AdminLayout>
       </Route>

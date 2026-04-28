@@ -1,6 +1,6 @@
 import { useRoute, Link } from "wouter";
-import { useGetProject, getGetProjectQueryKey } from "@workspace/api-client-react";
-import { ArrowLeft, ExternalLink, Github, LayoutTemplate, AlertTriangle, Zap, TrendingUp } from "lucide-react";
+import { useGetProject, getGetProjectQueryKey, useGetSiteSettings } from "@workspace/api-client-react";
+import { ArrowLeft, ExternalLink, Github, LayoutTemplate, AlertTriangle, Zap, TrendingUp, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,16 @@ export default function ProjectDetail() {
   const { data: project, isLoading, isError } = useGetProject(slug, {
     query: { enabled: !!slug, queryKey: getGetProjectQueryKey(slug) }
   });
+  
+  const { data: settings } = useGetSiteSettings();
+
+  const handleContactClick = () => {
+    if (settings?.whatsappUrl) {
+      window.open(settings.whatsappUrl, "_blank", "noopener,noreferrer");
+    } else {
+      window.location.href = "/#contato";
+    }
+  };
 
   if (isLoading) {
     return (
@@ -37,6 +47,9 @@ export default function ProjectDetail() {
     );
   }
 
+  const galleryImages = project.galleryImages?.split(/[\n,]/).map(u => u.trim()).filter(Boolean) || [];
+  const metrics = project.metricsSummary?.split('|').map(m => m.trim()).filter(Boolean) || [];
+
   return (
     <div className="min-h-screen bg-[#05070D]">
       {/* Header Hero */}
@@ -57,6 +70,11 @@ export default function ProjectDetail() {
             className="max-w-5xl"
           >
             <div className="flex flex-wrap gap-3 mb-6">
+              {project.category && (
+                <Badge className="bg-background/80 text-white border-[rgba(255,255,255,0.1)] hover:bg-background text-sm px-4 py-1">
+                  {project.category}
+                </Badge>
+              )}
               {project.featured && (
                 <Badge className="bg-primary/20 text-primary border-primary/30 hover:bg-primary/30 text-sm px-4 py-1">
                   Projeto Destaque
@@ -82,7 +100,7 @@ export default function ProjectDetail() {
         >
           {project.coverImageUrl ? (
             <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] bg-[#0B1020] mb-20 relative">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1020] via-transparent to-transparent opacity-60 z-10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1020] via-background/40 to-transparent opacity-60 z-10" />
               <img src={project.coverImageUrl} alt={project.title} className="w-full h-full object-cover" />
             </div>
           ) : (
@@ -95,6 +113,24 @@ export default function ProjectDetail() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           <div className="lg:col-span-8 space-y-20">
+            
+            {metrics.length > 0 && (
+              <motion.section 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-3xl font-bold mb-8 text-foreground">Impacto Direto</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {metrics.map((metric, i) => (
+                    <div key={i} className="p-6 rounded-2xl bg-[rgba(18,61,255,0.05)] border border-[rgba(18,61,255,0.1)] flex items-center justify-center text-center">
+                      <p className="text-2xl font-bold text-[#00D8FF]">{metric}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
             {project.fullDescription && (
               <motion.section 
                 initial={{ opacity: 0, y: 20 }}
@@ -161,6 +197,40 @@ export default function ProjectDetail() {
                 </div>
               </motion.section>
             )}
+
+            {galleryImages.length > 0 && (
+              <motion.section 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-3xl font-bold mb-8 text-foreground">Galeria</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {galleryImages.map((imgUrl, i) => (
+                    <div key={i} className="aspect-video w-full rounded-xl overflow-hidden border border-[rgba(255,255,255,0.1)] bg-[#0B1020]">
+                      <img src={imgUrl} alt={`Galeria ${i+1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    </div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            <motion.section 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="pt-12 border-t border-[rgba(255,255,255,0.05)]"
+            >
+              <div className="p-12 rounded-2xl bg-gradient-to-br from-[#061A44] to-[#0B1020] border border-primary/20 text-center">
+                <h3 className="text-3xl font-bold text-white mb-4">Gostou deste projeto?</h3>
+                <p className="text-[#AAB6D3] text-lg mb-8 max-w-xl mx-auto">
+                  Podemos construir uma solução com este mesmo nível de qualidade para a sua empresa.
+                </p>
+                <Button size="lg" onClick={handleContactClick} className="h-14 px-8 text-base font-bold bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] text-white border-0 glow-blue">
+                  Falar com a 41 Tech <Send className="ml-2 w-4 h-4" />
+                </Button>
+              </div>
+            </motion.section>
           </div>
 
           <div className="lg:col-span-4">
@@ -178,15 +248,15 @@ export default function ProjectDetail() {
                 {(project.demoUrl || project.repositoryUrl) && (
                   <div className="pt-6 border-t border-[rgba(255,255,255,0.1)] space-y-4">
                     {project.demoUrl && (
-                      <Button asChild className="w-full h-14 text-base font-bold bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] text-white border-0 glow-blue justify-start px-6">
+                      <Button asChild className="w-full h-14 text-base font-bold bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] text-white border-0 glow-blue justify-center">
                         <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="w-5 h-5 mr-3" />
-                          Acessar Solução
+                          Ver Demonstração
                         </a>
                       </Button>
                     )}
                     {project.repositoryUrl && (
-                      <Button asChild className="w-full h-14 text-base font-bold justify-start px-6 border-[rgba(255,255,255,0.2)] text-white hover:bg-white/5 glassmorphism" variant="outline">
+                      <Button asChild className="w-full h-14 text-base font-bold justify-center border-[rgba(255,255,255,0.2)] text-white hover:bg-white/5 glassmorphism" variant="outline">
                         <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer">
                           <Github className="w-5 h-5 mr-3" />
                           Repositório
