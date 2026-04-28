@@ -1,0 +1,243 @@
+Crie uma aplicação web profissional para a empresa 41 Tech usando Next.js, React, TypeScript e Tailwind CSS.
+
+Objetivo:
+Criar uma landing page institucional + portfólio técnico/comercial da 41 Tech, setor de tecnologia do Grupo 41, demonstrando projetos, cases, experiências, equipe, stacks e soluções desenvolvidas em programação, automação, BI, dashboards, sistemas web, APIs, ERP, IA, n8n, Power BI, MySQL, Docker e EasyPanel.
+
+Conceito:
+A 41 Tech transforma processos manuais e operações complexas em sistemas, automações, dashboards e soluções digitais reais.
+
+Crie um visual moderno, profissional e corporativo, misturando tecnologia, dados, automação e credibilidade comercial.
+
+Stack obrigatória:
+- Next.js com App Router
+- React
+- TypeScript
+- Tailwind CSS
+- Componentes reutilizáveis
+- Layout responsivo
+- Dark mode opcional
+- Estrutura pronta para deploy via Docker/EasyPanel
+- Banco MySQL preparado via Prisma ou Drizzle ORM
+- Autenticação admin simples com senha criptografada
+
+Estrutura de pastas:
+docs/
+infra/
+scripts/
+pipelines/
+src/
+tests/
+configs/
+examples/
+
+Inclua também:
+docs/DECISIONS.md
+README.md
+.env.example
+Dockerfile
+docker-compose.yml
+
+Rotas públicas:
+/
+ /projetos
+ /projetos/[slug]
+ /equipe
+ /cases/[slug]
+
+Rotas admin ocultas:
+ /admin-41tech/login
+ /admin-41tech/dashboard
+ /admin-41tech/projects
+ /admin-41tech/team
+ /admin-41tech/cases
+ /admin-41tech/technologies
+
+Importante:
+Não coloque nenhum botão público de login.
+A rota admin deve existir, mas não deve aparecer no menu público.
+
+Home pública deve conter:
+1. Hero principal
+   - Headline forte:
+     “Tecnologia aplicada à operação real.”
+   - Subheadline:
+     “Criamos sistemas, automações, dashboards e integrações que transformam processos manuais em soluções digitais escaláveis.”
+   - CTA principal:
+     “Quero transformar um processo em sistema”
+   - CTA secundário:
+     “Ver projetos”
+
+2. Seção “O que fazemos”
+   Cards:
+   - Sistemas Web
+   - Automações
+   - BI e Dashboards
+   - Integrações com APIs
+   - IA aplicada a processos
+   - Infra, Docker e Deploy
+
+3. Seção “Projetos em destaque”
+   Criar cards para:
+   - Hub Corporativo
+   - FinSight BI Financeiro
+   - Automações n8n + Omie
+   - ERP Interno
+   - Integrações SprintHub
+   - Dashboards Power BI
+
+4. Seção “Cases”
+   Mostrar problema, solução e resultado.
+
+5. Seção “Equipe”
+   Deve permitir mostrar pelo menos 2 membros:
+   - Nome
+   - Cargo
+   - Bio
+   - Skills
+   - Links profissionais
+
+6. Seção “Stack técnica”
+   Exibir tecnologias:
+   Next.js, React, Node.js, MySQL, Docker, EasyPanel, n8n, Power BI, APIs, IA, GitHub.
+
+7. CTA final:
+   “Quer transformar um processo manual em uma solução digital?”
+   Botão:
+   “Falar com a 41 Tech”
+
+Banco de dados:
+Crie modelos/tabelas para:
+
+users:
+- id
+- name
+- email
+- password_hash
+- role
+- created_at
+- updated_at
+
+team_members:
+- id
+- name
+- role_title
+- bio
+- avatar_url
+- linkedin_url
+- github_url
+- sort_order
+- is_active
+- created_at
+- updated_at
+
+projects:
+- id
+- title
+- slug
+- short_description
+- full_description
+- problem
+- solution
+- result
+- cover_image_url
+- demo_url
+- repository_url
+- status
+- featured
+- owner_member_id
+- created_at
+- updated_at
+
+technologies:
+- id
+- name
+- icon_url
+- category
+- created_at
+- updated_at
+
+project_technologies:
+- project_id
+- technology_id
+
+cases:
+- id
+- title
+- slug
+- client_segment
+- problem
+- solution
+- result
+- metrics_summary
+- project_id
+- is_public
+- created_at
+- updated_at
+
+Painel admin:
+Criar CRUD para:
+- Projetos
+- Membros da equipe
+- Cases
+- Tecnologias
+
+Regras admin:
+- Login obrigatório para acessar dashboard.
+- Usuário não autenticado deve ser redirecionado para /admin-41tech/login.
+- Senhas devem ser armazenadas com hash.
+- CRUD deve validar campos obrigatórios.
+- Permitir marcar projeto como destaque.
+- Permitir marcar case como público ou privado.
+
+Design:
+- Visual premium, tecnológico e corporativo.
+- Fundo escuro elegante com detalhes em azul, verde ou roxo.
+- Cards com bordas suaves, glassmorphism moderado e animações leves.
+- Layout responsivo para desktop e mobile.
+- Seções bem espaçadas.
+- Tipografia forte e moderna.
+- Não deixar o site parecer template genérico.
+
+Conteúdo inicial fake/demo:
+Cadastrar dados mockados para permitir visualizar a landing page antes do banco estar conectado.
+
+Projetos demo:
+1. Hub Corporativo
+Descrição: Plataforma interna para centralizar chamados, usuários, indicadores, permissões e ferramentas corporativas.
+
+2. FinSight BI Financeiro
+Descrição: Dashboard financeiro com DRE, indicadores, análise gerencial e integração com dados do ERP.
+
+3. Automações n8n + Omie
+Descrição: Fluxos automatizados para extração, tratamento e sincronização de dados via API.
+
+4. ERP Interno
+Descrição: Sistema web para centralizar processos de setores como fiscal, DP, BPO, comercial e gerência.
+
+5. Integrações SprintHub
+Descrição: Integrações entre CRM, automações comerciais, follow-ups e relatórios.
+
+6. Dashboards Power BI
+Descrição: Painéis executivos conectados ao MySQL para análise de dados operacionais e financeiros.
+
+Critérios de qualidade:
+- Código limpo.
+- Componentes reutilizáveis.
+- Responsividade real.
+- Sem erros de build.
+- README explicando como rodar.
+- .env.example com variáveis necessárias.
+- Dockerfile funcional.
+- Estrutura pronta para deploy no EasyPanel.
+
+Smoke tests:
+- Rodar npm install.
+- Rodar npm run dev.
+- Home deve abrir.
+- /projetos deve listar projetos.
+- /admin-41tech/login deve abrir.
+- /admin-41tech/dashboard deve exigir login.
+- Admin autenticado deve conseguir criar projeto.
+- Projeto criado deve aparecer na área pública.
+
+Entregue a primeira versão funcional e visualmente premium.
