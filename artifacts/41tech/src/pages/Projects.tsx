@@ -3,72 +3,117 @@ import { useListProjects } from "@workspace/api-client-react";
 import { Blocks, ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 
 export default function Projects() {
   const { data: projects, isLoading } = useListProjects();
 
-  return (
-    <div className="container mx-auto px-4 py-16 md:py-24">
-      <div className="max-w-2xl mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Projetos</h1>
-        <p className="text-xl text-muted-foreground">
-          Conheça os sistemas e plataformas que construímos para otimizar operações corporativas.
-        </p>
-      </div>
+  const inferCategory = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes('dashboard') || t.includes('bi') || t.includes('dados')) return "BI & Dados";
+    if (t.includes('automação') || t.includes('integração') || t.includes('n8n')) return "Automação";
+    return "Plataforma Web";
+  };
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="space-y-4">
-              <Skeleton className="aspect-video w-full rounded-xl" />
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-2/3" />
+  return (
+    <div className="min-h-screen bg-[#05070D]">
+      {/* Page Header */}
+      <section className="pt-32 pb-24 relative overflow-hidden bg-[#0B1020] border-b border-[rgba(255,255,255,0.05)]">
+        <div className="absolute inset-0 tech-grid opacity-20 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 blur-[150px] rounded-full pointer-events-none" />
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
+              Nosso Portfólio
             </div>
-          ))}
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-foreground tracking-tight">Projetos</h1>
+            <p className="text-xl md:text-2xl text-[#AAB6D3] leading-relaxed">
+              Conheça os sistemas e plataformas que construímos para otimizar operações corporativas.
+            </p>
+          </motion.div>
         </div>
-      ) : projects?.length ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map(project => (
-            <Link key={project.id} href={`/projetos/${project.slug}`}>
-              <div className="group h-full flex flex-col rounded-xl overflow-hidden border border-border bg-card hover:border-primary/50 transition-all">
-                {project.coverImageUrl ? (
-                  <div className="aspect-video w-full overflow-hidden bg-muted relative">
-                    <img src={project.coverImageUrl} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    {project.featured && (
-                      <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
-                        Destaque
-                      </Badge>
-                    )}
-                  </div>
-                ) : (
-                  <div className="aspect-video w-full bg-muted flex items-center justify-center border-b border-border relative">
-                    <Blocks className="w-12 h-12 text-muted-foreground/50" />
-                    {project.featured && (
-                      <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
-                        Destaque
-                      </Badge>
-                    )}
-                  </div>
-                )}
-                <div className="p-6 flex flex-col flex-1">
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors text-foreground">{project.title}</h3>
-                  <p className="text-muted-foreground line-clamp-3 mb-6 flex-1">{project.shortDescription}</p>
-                  <div className="flex items-center text-primary text-sm font-medium mt-auto">
-                    Ver detalhes <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-24">
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="space-y-4">
+                <Skeleton className="aspect-[4/3] w-full rounded-2xl bg-[#0B1020]" />
+                <Skeleton className="h-8 w-3/4 bg-[#0B1020]" />
+                <Skeleton className="h-4 w-full bg-[#0B1020]" />
+                <Skeleton className="h-4 w-2/3 bg-[#0B1020]" />
               </div>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-24 bg-card border border-border rounded-xl">
-          <Blocks className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground">Nenhum projeto encontrado</h3>
-          <p className="text-muted-foreground">Os projetos aparecerão aqui em breve.</p>
-        </div>
-      )}
+            ))}
+          </div>
+        ) : projects?.length ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {projects.map((project, i) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: i * 0.1 }}
+                className="h-full"
+              >
+                <Link href={`/projetos/${project.slug}`}>
+                  <div className="group h-full flex flex-col rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] bg-[#0B1020] hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] shadow-lg">
+                    <div className="aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-[#061A44] to-[#05070D] relative flex items-center justify-center">
+                      {project.coverImageUrl ? (
+                        <img src={project.coverImageUrl} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center opacity-30 group-hover:scale-110 transition-transform duration-700">
+                          <svg className="w-1/2 h-1/2 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                            <line x1="9" y1="21" x2="9" y2="9"></line>
+                          </svg>
+                        </div>
+                      )}
+                      
+                      <div className="absolute top-4 right-4 flex gap-2">
+                        <Badge className="bg-background/80 backdrop-blur-md border border-[rgba(255,255,255,0.1)] text-white hover:bg-background">
+                          {inferCategory(project.title)}
+                        </Badge>
+                        {project.featured && (
+                          <Badge className="bg-primary/90 backdrop-blur-md border border-primary text-white hover:bg-primary">
+                            Destaque
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0B1020] via-transparent to-transparent opacity-80" />
+                    </div>
+                    
+                    <div className="p-8 flex flex-col flex-1 relative">
+                      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      <h3 className="text-2xl font-bold mb-4 group-hover:text-[#00D8FF] transition-colors text-foreground">{project.title}</h3>
+                      <p className="text-[#AAB6D3] line-clamp-3 mb-8 flex-1 text-lg leading-relaxed">{project.shortDescription}</p>
+                      
+                      <div className="mt-auto overflow-hidden">
+                        <div className="flex items-center text-primary font-semibold translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                          Ver detalhes <ArrowRight className="w-5 h-5 ml-2" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-32 bg-[#0B1020] border border-[rgba(255,255,255,0.05)] rounded-2xl">
+            <Blocks className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+            <h3 className="text-2xl font-bold text-foreground mb-2">Nenhum projeto encontrado</h3>
+            <p className="text-[#AAB6D3] text-lg">Os projetos aparecerão aqui em breve.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

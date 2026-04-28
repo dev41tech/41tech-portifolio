@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Lock, Mail, Loader2 } from "lucide-react";
-import { useLogin, useGetMe } from "@workspace/api-client-react";
+import { useLogin, useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +28,7 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const loginMutation = useLogin();
-  const { data: user } = useGetMe({ query: { retry: false } });
+  const { data: user } = useGetMe({ query: { retry: false, queryKey: getGetMeQueryKey() } });
 
   useEffect(() => {
     if (user) {
@@ -58,7 +58,7 @@ export default function Login() {
         onError: (error) => {
           toast({
             title: "Acesso negado",
-            description: error.error || "Credenciais inválidas.",
+            description: (error.data as { error?: string } | null)?.error ?? "Credenciais inválidas.",
             variant: "destructive",
           });
         },

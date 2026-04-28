@@ -1,0 +1,196 @@
+Preciso que você faça um redesign premium da aplicação 41 Tech já criada.
+
+Contexto:
+A aplicação é uma landing page/portfólio da 41 Tech, setor de tecnologia do Grupo 41. A versão atual está funcional, mas a UI está simples, com pouco impacto visual. Quero transformar o site em uma experiência visual mais forte, moderna, tecnológica e comercial.
+
+Objetivo:
+Melhorar drasticamente a UI/UX, mantendo a estrutura atual do projeto, rotas públicas, rotas admin e banco de dados. Não remova funcionalidades existentes. Foque em redesign visual, animações, identidade da marca e experiência premium.
+
+Referência visual da marca:
+Use as cores dos logos anexados da 41 Tech:
+- Azul royal/tecnológico como cor principal
+- Branco para contraste
+- Preto/grafite como fundo base
+- Ciano/azul neon apenas como cor auxiliar, sem dominar tudo
+- Evitar deixar o site todo “cyan genérico”
+- A identidade precisa parecer 41 Tech, não template SaaS comum
+
+Paleta sugerida:
+- Fundo principal: #05070D ou #070B14
+- Fundo secundário: #0B1020
+- Azul principal: #123DFF ou #174BFF
+- Azul escuro: #061A44
+- Azul neon auxiliar: #00D8FF
+- Branco: #FFFFFF
+- Texto secundário: #AAB6D3
+- Bordas: rgba(255,255,255,0.10)
+
+Alterações obrigatórias:
+
+1. Header
+- Substituir o logo atual quadrado “41 TECH” pelo logo oficial enviado.
+- Usar preferencialmente a versão branca do logo em fundos escuros.
+- Header fixo/sticky com efeito glassmorphism:
+  - fundo com blur
+  - borda inferior sutil
+  - sombra leve
+- Menu com hover animado.
+- Botão “Falar com a 41 Tech” com gradiente azul royal + brilho suave no hover.
+
+2. Hero principal
+Na seção “Tecnologia aplicada à operação real”:
+- Adicionar um vídeo de fundo em loop, muted e autoplay.
+- O vídeo deve ser levemente desfocado, escurecido e com overlay em gradiente azul/preto.
+- Caso não exista vídeo no projeto, criar suporte para usar um arquivo em:
+  /public/videos/hero-tech.mp4
+- Se o vídeo não carregar, manter fallback visual com gradientes e grid tecnológico.
+- O texto deve ficar sobre o vídeo, com alta legibilidade.
+- Criar efeito visual premium com:
+  - gradiente no texto principal
+  - brilho azul atrás do título
+  - partículas ou linhas abstratas discretas
+  - grid tecnológico no fundo
+  - animação suave de entrada
+
+Texto do hero:
+Headline:
+“Tecnologia aplicada à operação real.”
+
+Subheadline:
+“Criamos sistemas, automações, dashboards e integrações que transformam processos manuais em soluções digitais escaláveis.”
+
+CTAs:
+- Primário: “Transformar meu processo”
+- Secundário: “Ver projetos”
+
+3. Seção “O que fazemos”
+Melhorar os cards para parecerem cards premium de tecnologia:
+- Ícones maiores
+- Hover com elevação, borda azul, brilho interno e leve rotação/scale
+- Fundo com gradiente escuro
+- Pequena descrição em cada card, não apenas título
+- Animação stagger ao aparecer na tela
+
+Cards:
+- Sistemas Web
+- Automações
+- BI e Dashboards
+- Integrações com APIs
+- IA aplicada a processos
+- Infra, Docker e Deploy
+
+4. Projetos em destaque
+A UI atual dos cards está muito simples.
+Melhorar os cards com:
+- Imagem/capa com gradiente ou mockup visual
+- Badge de categoria
+- Badge “Destaque”
+- Lista de tecnologias usadas
+- Hover com animação de glow, scale e movimento da imagem
+- Botão “Ver detalhes” mais evidente
+- Layout responsivo e moderno
+
+Caso não existam imagens reais, criar placeholders premium com:
+- gradientes azuis
+- elementos de dashboard
+- linhas de código
+- cards simulando interface
+- formas abstratas tecnológicas
+
+5. Página de detalhe do projeto
+Melhorar visualmente:
+- Hero do projeto com imagem grande e overlay
+- Blocos “Problema”, “Solução” e “Resultado” com cores e ícones próprios
+- Sidebar de detalhes mais bonita
+- Badges de tecnologias
+- Métricas em cards, quando houver
+- Seção de galeria/mockups, mesmo que com placeholders premium
+
+6. Seção Stack Tecnológico
+A seção atual está simples demais.
+Transformar em uma seção mais visual:
+- Badges com ícones ou initials
+- Hover com brilho
+- Agrupar por categoria:
+  - Front-end
+  - Back-end
+  - Dados & BI
+  - Automação
+  - Infra & Deploy
+- Adicionar texto curto explicando que a 41 Tech usa stack moderna para resolver problemas reais.
+
+7. Seção Equipe
+Melhorar muito os cards da equipe:
+- Avatar com borda gradiente
+- Fundo com glassmorphism
+- Hover com brilho e elevação
+- Skills como chips
+- Links com ícones animados
+- Espaçamento melhor
+- Evitar aparência de card vazio
+
+8. CTA final
+Deixar a seção final mais forte comercialmente:
+- Fundo com gradiente azul escuro/royal
+- Efeito de luz radial
+- Título maior
+- Texto de apoio:
+  “Se existe uma rotina repetitiva, uma planilha crítica ou um processo manual travando sua operação, a 41 Tech pode transformar isso em sistema.”
+- Botão com destaque visual forte
+
+9. Animações
+Adicionar animações usando Framer Motion ou CSS, mantendo performance:
+- Fade in ao entrar na viewport
+- Stagger nos cards
+- Hover em botões e cards
+- Microinterações nos badges
+- Animação suave no background do hero
+- Respeitar acessibilidade com prefers-reduced-motion
+
+10. Responsividade
+Garantir que o redesign fique excelente em:
+- Desktop grande
+- Notebook
+- Tablet
+- Mobile
+
+No mobile:
+- Header deve ficar limpo
+- Hero não pode ficar pesado
+- Vídeo pode ser substituído por fallback visual se prejudicar performance
+- Cards devem ficar em uma coluna com bom espaçamento
+
+11. Performance
+Mesmo com efeitos visuais:
+- Evitar animações pesadas demais
+- Usar lazy loading para imagens
+- Vídeo deve ser otimizado
+- Overlay deve garantir legibilidade
+- Não quebrar SSR/build do Next.js
+
+12. Admin
+Não redesenhar profundamente o admin agora, mas:
+- Não quebrar login/admin.
+- Manter rota oculta /admin-41tech/login.
+- Garantir que nenhum botão público leve ao admin.
+
+Regras importantes:
+- Não remover funcionalidades.
+- Não alterar as rotas existentes.
+- Não apagar o CRUD/admin.
+- Não expor rota admin no menu público.
+- Não transformar o site em algo genérico.
+- Usar identidade visual da 41 Tech.
+- Priorizar visual premium, tecnológico, comercial e confiável.
+
+Critérios de aceite:
+- Home deve parecer uma landing page premium de empresa de tecnologia.
+- O hero deve ter vídeo de fundo ou fallback premium.
+- Cards devem ter hover animado.
+- Projetos devem parecer cases reais e vendáveis.
+- Logo oficial deve substituir o logo atual.
+- Site deve continuar buildando sem erros.
+- npm run dev deve funcionar.
+- npm run build deve funcionar.
+
+Depois de aplicar, revise visualmente a home, /projetos, /projetos/[slug] e /equipe.

@@ -11,19 +11,16 @@ import {
 export function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background flex flex-col text-foreground selection:bg-primary/30">
-      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-[rgba(255,255,255,0.10)] glassmorphism">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center text-primary-foreground font-bold font-mono text-xl leading-none">
-              41
-            </div>
-            <span className="font-mono font-bold text-lg tracking-tight">TECH</span>
+            <img src="/logo-white.png" alt="41 Tech" className="h-8 w-auto" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <Link href="/projetos" className="hover:text-foreground transition-colors">Projetos</Link>
-            <Link href="/equipe" className="hover:text-foreground transition-colors">Equipe</Link>
-            <Button asChild variant="outline" className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground">
+            <Link href="/projetos" className="hover:text-primary transition-colors">Projetos</Link>
+            <Link href="/equipe" className="hover:text-primary transition-colors">Equipe</Link>
+            <Button asChild className="border-0 text-white bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0]">
               <a href="#contato">Falar com a 41 Tech</a>
             </Button>
           </nav>
@@ -36,10 +33,10 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             </SheetTrigger>
             <SheetContent side="right" className="bg-background border-border">
               <div className="flex flex-col gap-6 mt-12">
-                <Link href="/" className="text-lg font-medium">Início</Link>
-                <Link href="/projetos" className="text-lg font-medium">Projetos</Link>
-                <Link href="/equipe" className="text-lg font-medium">Equipe</Link>
-                <Button className="w-full mt-4">Falar com a 41 Tech</Button>
+                <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">Início</Link>
+                <Link href="/projetos" className="text-lg font-medium hover:text-primary transition-colors">Projetos</Link>
+                <Link href="/equipe" className="text-lg font-medium hover:text-primary transition-colors">Equipe</Link>
+                <Button className="w-full mt-4 bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] border-0 text-white">Falar com a 41 Tech</Button>
               </div>
             </SheetContent>
           </Sheet>
@@ -50,16 +47,13 @@ export function PublicLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <footer className="border-t border-border/50 bg-card py-12 md:py-16" id="contato">
+      <footer className="border-t border-[rgba(255,255,255,0.10)] bg-[#05070D] py-12 md:py-16" id="contato">
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center text-primary-foreground font-bold font-mono text-xl leading-none">
-                41
-              </div>
-              <span className="font-mono font-bold text-lg tracking-tight">TECH</span>
+              <img src="/logo-white.png" alt="41 Tech" className="h-8 w-auto" />
             </div>
-            <p className="text-muted-foreground max-w-sm">
+            <p className="text-muted-foreground max-w-sm mt-4">
               Tecnologia aplicada à operação real. Transformamos processos manuais em soluções digitais escaláveis.
             </p>
           </div>
@@ -78,7 +72,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             </ul>
           </div>
         </div>
-        <div className="container mx-auto px-4 mt-12 pt-8 border-t border-border/50 text-sm text-muted-foreground text-center md:text-left">
+        <div className="container mx-auto px-4 mt-12 pt-8 border-t border-[rgba(255,255,255,0.10)] text-sm text-muted-foreground text-center md:text-left">
           &copy; {new Date().getFullYear()} 41 Tech. Todos os direitos reservados.
         </div>
       </footer>

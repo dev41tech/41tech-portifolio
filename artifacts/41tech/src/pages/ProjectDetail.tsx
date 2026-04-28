@@ -1,9 +1,10 @@
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { useGetProject, getGetProjectQueryKey } from "@workspace/api-client-react";
-import { ArrowLeft, ExternalLink, Github, LayoutTemplate } from "lucide-react";
-import { Link } from "wouter";
+import { ArrowLeft, ExternalLink, Github, LayoutTemplate, AlertTriangle, Zap, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 
 export default function ProjectDetail() {
   const [, params] = useRoute("/projetos/:slug");
@@ -15,20 +16,21 @@ export default function ProjectDetail() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <Skeleton className="h-8 w-24 mb-12" />
-        <Skeleton className="h-16 w-3/4 mb-6" />
-        <Skeleton className="h-6 w-1/2 mb-12" />
-        <Skeleton className="aspect-video w-full rounded-xl mb-12" />
+      <div className="container mx-auto px-4 py-32 bg-[#05070D] min-h-screen">
+        <Skeleton className="h-8 w-32 mb-12 bg-[#0B1020]" />
+        <Skeleton className="h-16 w-3/4 mb-6 bg-[#0B1020]" />
+        <Skeleton className="h-6 w-1/2 mb-16 bg-[#0B1020]" />
+        <Skeleton className="aspect-[21/9] w-full rounded-2xl mb-16 bg-[#0B1020]" />
       </div>
     );
   }
 
   if (isError || !project) {
     return (
-      <div className="container mx-auto px-4 py-32 text-center">
-        <h1 className="text-2xl font-bold mb-4">Projeto não encontrado</h1>
-        <Button asChild>
+      <div className="container mx-auto px-4 py-40 text-center bg-[#05070D] min-h-screen flex flex-col items-center justify-center">
+        <LayoutTemplate className="w-20 h-20 text-muted-foreground mb-8" />
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-white">Projeto não encontrado</h1>
+        <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white">
           <Link href="/projetos">Voltar para projetos</Link>
         </Button>
       </div>
@@ -36,103 +38,157 @@ export default function ProjectDetail() {
   }
 
   return (
-    <div className="pb-24">
-      {/* Header */}
-      <div className="bg-card border-b border-border pt-16 pb-20">
-        <div className="container mx-auto px-4">
-          <Link href="/projetos" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary mb-12 transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Todos os projetos
+    <div className="min-h-screen bg-[#05070D]">
+      {/* Header Hero */}
+      <div className="relative pt-32 pb-40 overflow-hidden bg-[#0B1020] border-b border-[rgba(255,255,255,0.05)]">
+        <div className="absolute inset-0 tech-grid opacity-10 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 blur-[150px] rounded-full pointer-events-none" />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <Link href="/projetos" className="inline-flex items-center text-sm font-bold text-[#AAB6D3] hover:text-[#00D8FF] mb-12 transition-colors uppercase tracking-wider">
+            <ArrowLeft className="w-5 h-5 mr-3" />
+            Voltar ao Portfólio
           </Link>
           
-          <div className="max-w-4xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-foreground tracking-tight">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-5xl"
+          >
+            <div className="flex flex-wrap gap-3 mb-6">
+              {project.featured && (
+                <Badge className="bg-primary/20 text-primary border-primary/30 hover:bg-primary/30 text-sm px-4 py-1">
+                  Projeto Destaque
+                </Badge>
+              )}
+            </div>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-8 text-foreground tracking-tight leading-tight">
               {project.title}
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
+            <p className="text-xl md:text-3xl text-[#AAB6D3] leading-relaxed max-w-4xl">
               {project.shortDescription}
             </p>
-          </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 -mt-10 relative z-10">
-        {project.coverImageUrl ? (
-          <div className="aspect-[21/9] w-full rounded-xl overflow-hidden shadow-2xl border border-border bg-background mb-16">
-            <img src={project.coverImageUrl} alt={project.title} className="w-full h-full object-cover" />
-          </div>
-        ) : (
-          <div className="aspect-[21/9] w-full rounded-xl shadow-2xl border border-border bg-muted flex items-center justify-center mb-16">
-            <LayoutTemplate className="w-20 h-20 text-muted-foreground/30" />
-          </div>
-        )}
+      {/* Main Content */}
+      <div className="container mx-auto px-4 -mt-24 relative z-20 pb-32">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          {project.coverImageUrl ? (
+            <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] bg-[#0B1020] mb-20 relative">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1020] via-transparent to-transparent opacity-60 z-10" />
+              <img src={project.coverImageUrl} alt={project.title} className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="aspect-[21/9] w-full rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] bg-gradient-to-br from-[#061A44] to-[#0B1020] flex items-center justify-center mb-20 relative overflow-hidden">
+              <div className="absolute inset-0 tech-grid opacity-30" />
+              <LayoutTemplate className="w-32 h-32 text-primary/30 relative z-10" />
+            </div>
+          )}
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          <div className="lg:col-span-2 space-y-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+          <div className="lg:col-span-8 space-y-20">
             {project.fullDescription && (
-              <section>
-                <h2 className="text-2xl font-bold mb-6 text-foreground">Visão Geral</h2>
-                <div className="prose prose-invert max-w-none text-muted-foreground">
+              <motion.section 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-3xl font-bold mb-8 text-foreground">Visão Geral</h2>
+                <div className="prose prose-invert max-w-none text-xl text-[#AAB6D3] leading-relaxed">
                   <p className="whitespace-pre-wrap">{project.fullDescription}</p>
                 </div>
-              </section>
+              </motion.section>
             )}
 
             {project.problem && (
-              <section>
-                <h2 className="text-2xl font-bold mb-6 text-foreground">O Problema</h2>
-                <div className="p-6 rounded-lg bg-destructive/10 border border-destructive/20 text-foreground">
+              <motion.section 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                    <AlertTriangle className="w-6 h-6 text-red-500" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-foreground">O Problema</h2>
+                </div>
+                <div className="p-8 md:p-10 rounded-2xl bg-[#0B1020] border border-red-500/20 text-white text-lg md:text-xl leading-relaxed shadow-[inset_0_0_20px_rgba(239,68,68,0.05)]">
                   <p className="whitespace-pre-wrap">{project.problem}</p>
                 </div>
-              </section>
+              </motion.section>
             )}
 
             {project.solution && (
-              <section>
-                <h2 className="text-2xl font-bold mb-6 text-foreground">A Solução</h2>
-                <div className="p-6 rounded-lg bg-primary/10 border border-primary/20 text-foreground">
+              <motion.section 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-foreground">A Solução</h2>
+                </div>
+                <div className="p-8 md:p-10 rounded-2xl bg-[#0B1020] border border-primary/30 text-white text-lg md:text-xl leading-relaxed shadow-[inset_0_0_20px_rgba(18,61,255,0.05)]">
                   <p className="whitespace-pre-wrap">{project.solution}</p>
                 </div>
-              </section>
+              </motion.section>
             )}
 
             {project.result && (
-              <section>
-                <h2 className="text-2xl font-bold mb-6 text-foreground">Resultado</h2>
-                <div className="p-6 rounded-lg bg-secondary/10 border border-secondary/20 text-foreground">
+              <motion.section 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-foreground">O Resultado</h2>
+                </div>
+                <div className="p-8 md:p-10 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-white text-lg md:text-xl leading-relaxed shadow-[inset_0_0_20px_rgba(16,185,129,0.05)]">
                   <p className="whitespace-pre-wrap">{project.result}</p>
                 </div>
-              </section>
+              </motion.section>
             )}
           </div>
 
-          <div className="space-y-8">
-            <div className="p-6 rounded-xl border border-border bg-card space-y-6 sticky top-24">
-              <h3 className="font-bold text-lg text-foreground border-b border-border pb-4">Detalhes</h3>
+          <div className="lg:col-span-4">
+            <div className="p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0B1020] space-y-8 sticky top-32 glassmorphism">
+              <h3 className="font-bold text-2xl text-white border-b border-[rgba(255,255,255,0.1)] pb-6">Detalhes Técnicos</h3>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <span className="text-sm text-muted-foreground block mb-1">Status</span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/20 text-secondary border border-secondary/30 capitalize">
-                    {project.status}
+                  <span className="text-sm font-bold text-[#AAB6D3] uppercase tracking-wider block mb-3">Status do Projeto</span>
+                  <span className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-bold bg-[#061A44] text-[#00D8FF] border border-[#00D8FF]/30 capitalize">
+                    {project.status === 'completed' ? 'Concluído' : project.status === 'in_progress' ? 'Em Andamento' : project.status}
                   </span>
                 </div>
                 
                 {(project.demoUrl || project.repositoryUrl) && (
-                  <div className="pt-4 border-t border-border space-y-3">
+                  <div className="pt-6 border-t border-[rgba(255,255,255,0.1)] space-y-4">
                     {project.demoUrl && (
-                      <Button asChild className="w-full justify-start" variant="default">
+                      <Button asChild className="w-full h-14 text-base font-bold bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] text-white border-0 glow-blue justify-start px-6">
                         <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          Acessar Projeto
+                          <ExternalLink className="w-5 h-5 mr-3" />
+                          Acessar Solução
                         </a>
                       </Button>
                     )}
                     {project.repositoryUrl && (
-                      <Button asChild className="w-full justify-start" variant="outline">
+                      <Button asChild className="w-full h-14 text-base font-bold justify-start px-6 border-[rgba(255,255,255,0.2)] text-white hover:bg-white/5 glassmorphism" variant="outline">
                         <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer">
-                          <Github className="w-4 h-4 mr-2" />
+                          <Github className="w-5 h-5 mr-3" />
                           Repositório
                         </a>
                       </Button>
