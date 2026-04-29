@@ -55,7 +55,7 @@ app.use("/api", router);
 const frontendDistPath = process.env.FRONTEND_DIST_PATH;
 if (frontendDistPath) {
   app.use(express.static(frontendDistPath));
-  app.get("*", (_req, res) => {
+  app.get("/*splat", (_req, res) => {
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
