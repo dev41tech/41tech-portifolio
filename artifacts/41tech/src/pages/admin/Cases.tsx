@@ -53,7 +53,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const caseSchema = z.object({
   title: z.string().min(2, "Título é obrigatório"),
@@ -233,7 +232,7 @@ export default function AdminCases() {
               </DialogDescription>
             </DialogHeader>
 
-            <ScrollArea className="flex-1 p-6">
+            <div className="flex-1 min-h-0 overflow-y-auto p-6">
               <Form {...form}>
                 <form id="case-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -378,9 +377,9 @@ export default function AdminCases() {
                   )} />
                 </form>
               </Form>
-            </ScrollArea>
+            </div>
 
-            <div className="p-6 border-t border-border flex justify-end gap-2 bg-background mt-auto">
+            <div className="shrink-0 p-6 border-t border-border flex justify-end gap-2 bg-background">
               <Button variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
               <Button type="submit" form="case-form" disabled={createMutation.isPending || updateMutation.isPending}>
                 {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

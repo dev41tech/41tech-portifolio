@@ -1,0 +1,78 @@
+Corrija a rolagem dos formulários/modais do painel admin da aplicação 41 Tech.
+
+Problema:
+Após adicionar campos de mídia e preview, os formulários ficaram grandes e a barra de rolagem não funciona. Isso impede acessar todos os campos e botões de salvar/cancelar.
+
+Objetivo:
+Garantir que todos os modais/formulários admin tenham rolagem interna funcional, sem quebrar o layout.
+
+Aplicar em:
+- Admin > Projetos > Criar/Editar
+- Admin > Cases > Criar/Editar
+- Admin > Equipe > Criar/Editar
+- Admin > Tecnologias > Criar/Editar
+- Admin > Configurações, se houver modal/formulário grande
+
+Correção esperada:
+1. O overlay do modal pode ocupar a tela toda.
+2. O container do modal deve ter:
+   - max-height: 90vh
+   - display: flex
+   - flex-direction: column
+   - overflow: hidden
+
+3. O cabeçalho do modal deve ficar fixo no topo do modal.
+
+4. O conteúdo central do formulário deve ter:
+   - flex: 1
+   - overflow-y: auto
+   - padding adequado
+   - scrollbar visível/funcional
+
+5. O rodapé com botões “Cancelar” e “Salvar” deve ficar fixo no final do modal.
+
+Exemplo de estrutura:
+
+<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+  <div className="w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950">
+    
+    <div className="shrink-0 border-b border-white/10 p-6">
+      header do modal
+    </div>
+
+    <form className="flex flex-1 flex-col min-h-0">
+      <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
+        campos do formulário
+      </div>
+
+      <div className="shrink-0 border-t border-white/10 p-4 flex justify-end gap-3 bg-slate-950">
+        botões
+      </div>
+    </form>
+
+  </div>
+</div>
+
+Pontos críticos:
+- Adicionar min-h-0 no wrapper flex do conteúdo.
+- Remover overflow-hidden do body interno do formulário, se estiver bloqueando scroll.
+- Não usar h-screen dentro do modal interno.
+- Não deixar o botão Salvar dentro da área que some sem scroll.
+- Se o modal usa DialogContent/shadcn, aplicar className:
+  max-h-[90vh] overflow-hidden flex flex-col
+- E no conteúdo:
+  overflow-y-auto flex-1 min-h-0
+
+Também corrigir scroll em mobile:
+- Modal deve usar max-h-[95vh]
+- padding menor em telas pequenas
+- conteúdo rolável com -webkit-overflow-scrolling: touch
+
+Critérios de aceite:
+1. Abrir criar/editar projeto.
+2. Conseguir rolar até todos os campos de mídia.
+3. Botões Salvar/Cancelar sempre ficam visíveis no rodapé.
+4. Abrir criar/editar case e conseguir rolar.
+5. Abrir criar/editar equipe e conseguir rolar.
+6. Funcionar no desktop e mobile.
+7. npm run build sem erro.
