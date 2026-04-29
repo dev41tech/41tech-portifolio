@@ -5,6 +5,7 @@
  * 41 Tech API
  * OpenAPI spec version: 0.1.0
  */
+import type { CreateProjectBodyPreviewType } from "./createProjectBodyPreviewType";
 
 export interface CreateProjectBody {
   title: string;
@@ -14,6 +15,9 @@ export interface CreateProjectBody {
   problem?: string | null;
   solution?: string | null;
   result?: string | null;
+  previewType?: CreateProjectBodyPreviewType;
+  previewUrl?: string | null;
+  previewAlt?: string | null;
   coverImageUrl?: string | null;
   thumbnailUrl?: string | null;
   galleryImages?: string | null;

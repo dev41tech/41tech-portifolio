@@ -1,0 +1,127 @@
+Corrija o cadastro de projetos no painel admin da aplicação 41 Tech.
+
+Problema:
+Mesmo após as alterações anteriores, o formulário de criação/edição de projetos ainda não permite cadastrar uma preview visual real do app/projeto. Na página pública do projeto continua aparecendo apenas um placeholder genérico.
+
+Objetivo:
+Adicionar suporte real para preview do projeto por imagem e/ou vídeo, tanto no admin quanto na área pública.
+
+Implemente os campos abaixo no formulário de Projeto:
+
+1. preview_type
+Tipo: select
+Opções:
+- image
+- video
+- none
+
+Label:
+“Tipo de preview”
+
+2. preview_url
+Tipo: input URL
+Label:
+“URL da imagem ou vídeo de preview”
+
+Descrição:
+“Cole aqui a URL da imagem, gif ou vídeo demonstrativo do projeto.”
+
+3. preview_alt
+Tipo: input text
+Label:
+“Texto alternativo da preview”
+
+4. cover_image_url
+Tipo: input URL
+Label:
+“Imagem de capa do projeto”
+
+5. gallery_images
+Tipo: textarea
+Label:
+“Galeria de imagens”
+Descrição:
+“Adicione uma URL por linha.”
+
+6. demo_url
+Tipo: input URL
+Label:
+“Link de demonstração”
+
+7. repository_url
+Tipo: input URL
+Label:
+“Link do repositório”
+
+Regras do admin:
+- Ao preencher preview_url, mostrar uma prévia dentro do próprio modal.
+- Se preview_type = image, renderizar a imagem.
+- Se preview_type = video, renderizar vídeo com controls, muted e preview.
+- Se preview_type = none ou preview_url vazio, mostrar fallback premium.
+- Não permitir que o modal esconda esses campos por falta de scroll. O modal deve ter área interna rolável.
+- Os campos devem aparecer claramente em uma seção chamada “Mídia e Preview do Projeto”.
+- Garantir que os valores sejam salvos ao clicar em “Salvar”.
+- Garantir que ao editar o projeto novamente, os campos venham preenchidos.
+
+Atualize o modelo de dados do projeto para incluir:
+
+projects:
+- preview_type
+- preview_url
+- preview_alt
+- cover_image_url
+- gallery_images
+- demo_url
+- repository_url
+
+Se estiver usando mock/localStorage/in-memory:
+- Atualize o schema/types/interfaces.
+- Atualize os dados mockados.
+- Atualize os reducers/services usados pelo CRUD.
+
+Se estiver usando banco/ORM:
+- Criar migration.
+- Atualizar model.
+- Atualizar create/update/list/getBySlug.
+- Atualizar seed.
+
+Área pública:
+Na página /projetos:
+- Cards devem usar:
+  1. thumbnail_url, se existir
+  2. preview_url se preview_type = image
+  3. cover_image_url, se existir
+  4. fallback premium
+
+Na página /projetos/[slug]:
+- No hero visual grande do projeto, substituir o placeholder pelo preview real.
+- Se preview_type = image:
+  - renderizar imagem grande com object-fit cover.
+- Se preview_type = video:
+  - renderizar vídeo dentro do container grande com controls, muted, playsInline e poster se cover_image_url existir.
+- Se não tiver preview:
+  - manter fallback premium.
+- Abaixo do preview, mostrar botões:
+  - “Ver demonstração”, se demo_url existir
+  - “Repositório”, se repository_url existir
+
+Validações:
+- preview_url pode ser vazio.
+- URLs inválidas não podem quebrar a página.
+- Imagem com erro deve cair para fallback premium.
+- Vídeo com erro deve cair para fallback premium.
+- Funcionar em desktop e mobile.
+- Não quebrar o admin existente.
+- Não expor login admin no site público.
+
+Critérios de aceite:
+1. Admin de projetos exibe seção “Mídia e Preview do Projeto”.
+2. Consigo cadastrar URL de imagem como preview.
+3. Consigo cadastrar URL de vídeo como preview.
+4. Preview aparece dentro do modal admin.
+5. Preview salva corretamente.
+6. Ao reabrir o projeto, a preview continua cadastrada.
+7. /projetos mostra imagem/preview no card.
+8. /projetos/[slug] mostra imagem ou vídeo no hero do projeto.
+9. Placeholder só aparece quando não houver mídia cadastrada.
+10. npm run build funciona sem erro.

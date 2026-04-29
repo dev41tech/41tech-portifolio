@@ -35,10 +35,11 @@ Institutional landing page + admin panel for 41 Tech — the technology division
 ### Admin (hidden — no public links)
 - `/admin-41tech/login` — Login page
 - `/admin-41tech/dashboard` — Stats dashboard
-- `/admin-41tech/projects` — CRUD for projects
+- `/admin-41tech/projects` — CRUD for projects (includes preview media fields)
 - `/admin-41tech/team` — CRUD for team members
 - `/admin-41tech/cases` — CRUD for cases
 - `/admin-41tech/technologies` — CRUD for technologies
+- `/admin-41tech/settings` — Site settings (hero video, WhatsApp CTA, contact info)
 
 ## Admin Credentials (Demo)
 
@@ -54,6 +55,20 @@ Institutional landing page + admin panel for 41 Tech — the technology division
 
 ## Database Schema
 
-Tables: `users`, `team_members`, `projects`, `technologies`, `cases`
+Tables: `users`, `team_members`, `projects`, `technologies`, `cases`, `site_settings`
+
+### projects (key fields)
+- `preview_type` — `image | video | none`
+- `preview_url` — URL of the preview media
+- `preview_alt` — Alt text for the preview
+- `cover_image_url`, `thumbnail_url`, `gallery_images` (newline-separated URLs)
+- `metrics_summary` — pipe-separated metrics string (e.g. `-60% tempo | 100% centralização`)
+- `demo_url`, `repository_url`
+- `category` — one of: Sistema Web, BI & Dados, Automação, Integração, IA, Infra & Deploy, ERP, Outro
+
+### site_settings (singleton row)
+- `hero_video_url`, `hero_video_enabled`, `hero_fallback_image_url`
+- `whatsapp_url`, `contact_email`, `linkedin_url`
+- `cta_primary_label`, `cta_secondary_label`
 
 See `lib/db/src/schema/` for full schema definitions.

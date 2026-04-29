@@ -600,6 +600,16 @@ components:
         result:
           type: string
           nullable: true
+        previewType:
+          type: string
+          nullable: true
+          enum: [image, video, none]
+        previewUrl:
+          type: string
+          nullable: true
+        previewAlt:
+          type: string
+          nullable: true
         coverImageUrl:
           type: string
           nullable: true
@@ -658,6 +668,16 @@ components:
           type: string
           nullable: true
         result:
+          type: string
+          nullable: true
+        previewType:
+          type: string
+          nullable: true
+          enum: [image, video, none]
+        previewUrl:
+          type: string
+          nullable: true
+        previewAlt:
           type: string
           nullable: true
         coverImageUrl:

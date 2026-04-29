@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { useGetProject, getGetProjectQueryKey, useGetSiteSettings } from "@workspace/api-client-react";
 import { ArrowLeft, ExternalLink, Github, LayoutTemplate, AlertTriangle, Zap, TrendingUp, Send } from "lucide-react";
@@ -47,8 +48,15 @@ export default function ProjectDetail() {
     );
   }
 
+  const [previewError, setPreviewError] = useState(false);
   const galleryImages = project.galleryImages?.split(/[\n,]/).map(u => u.trim()).filter(Boolean) || [];
   const metrics = project.metricsSummary?.split('|').map(m => m.trim()).filter(Boolean) || [];
+  const heroMedia = (() => {
+    if (!previewError && project.previewType === "image" && project.previewUrl) return { type: "image" as const, url: project.previewUrl };
+    if (!previewError && project.previewType === "video" && project.previewUrl) return { type: "video" as const, url: project.previewUrl };
+    if (project.coverImageUrl) return { type: "image" as const, url: project.coverImageUrl };
+    return null;
+  })();
 
   return (
     <div className="min-h-screen bg-[#05070D]">
@@ -98,15 +106,55 @@ export default function ProjectDetail() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {project.coverImageUrl ? (
-            <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] bg-[#0B1020] mb-20 relative">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1020] via-background/40 to-transparent opacity-60 z-10" />
-              <img src={project.coverImageUrl} alt={project.title} className="w-full h-full object-cover" />
+          {heroMedia ? (
+            <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] bg-[#0B1020] mb-8 relative">
+              {heroMedia.type === "video" ? (
+                <video
+                  src={heroMedia.url}
+                  controls
+                  muted
+                  playsInline
+                  poster={project.coverImageUrl ?? undefined}
+                  className="w-full h-full object-cover"
+                  onError={() => setPreviewError(true)}
+                />
+              ) : (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B1020] via-background/40 to-transparent opacity-60 z-10" />
+                  <img
+                    src={heroMedia.url}
+                    alt={project.previewAlt || project.title}
+                    className="w-full h-full object-cover"
+                    onError={() => setPreviewError(true)}
+                  />
+                </>
+              )}
             </div>
           ) : (
-            <div className="aspect-[21/9] w-full rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] bg-gradient-to-br from-[#061A44] to-[#0B1020] flex items-center justify-center mb-20 relative overflow-hidden">
+            <div className="aspect-[21/9] w-full rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] bg-gradient-to-br from-[#061A44] to-[#0B1020] flex items-center justify-center mb-8 relative overflow-hidden">
               <div className="absolute inset-0 tech-grid opacity-30" />
               <LayoutTemplate className="w-32 h-32 text-primary/30 relative z-10" />
+            </div>
+          )}
+
+          {(project.demoUrl || project.repositoryUrl) && (
+            <div className="flex flex-wrap gap-4 mb-12">
+              {project.demoUrl && (
+                <Button asChild size="lg" className="h-12 px-6 text-base font-bold bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] text-white border-0">
+                  <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-5 h-5 mr-2" />
+                    Ver demonstração
+                  </a>
+                </Button>
+              )}
+              {project.repositoryUrl && (
+                <Button asChild size="lg" variant="outline" className="h-12 px-6 text-base font-bold border-[rgba(255,255,255,0.2)] text-white hover:bg-white/5 glassmorphism">
+                  <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer">
+                    <Github className="w-5 h-5 mr-2" />
+                    Repositório
+                  </a>
+                </Button>
+              )}
             </div>
           )}
         </motion.div>

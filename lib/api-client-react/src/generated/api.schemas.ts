@@ -33,6 +33,16 @@ export interface LoginResponse {
   user: AdminUser;
 }
 
+export type ProjectPreviewType =
+  | (typeof ProjectPreviewType)[keyof typeof ProjectPreviewType]
+  | null;
+
+export const ProjectPreviewType = {
+  image: "image",
+  video: "video",
+  none: "none",
+} as const;
+
 export interface Project {
   id: number;
   title: string;
@@ -42,6 +52,9 @@ export interface Project {
   problem?: string | null;
   solution?: string | null;
   result?: string | null;
+  previewType?: ProjectPreviewType;
+  previewUrl?: string | null;
+  previewAlt?: string | null;
   coverImageUrl?: string | null;
   thumbnailUrl?: string | null;
   galleryImages?: string | null;
@@ -55,6 +68,16 @@ export interface Project {
   updatedAt: string;
 }
 
+export type CreateProjectBodyPreviewType =
+  | (typeof CreateProjectBodyPreviewType)[keyof typeof CreateProjectBodyPreviewType]
+  | null;
+
+export const CreateProjectBodyPreviewType = {
+  image: "image",
+  video: "video",
+  none: "none",
+} as const;
+
 export interface CreateProjectBody {
   title: string;
   slug: string;
@@ -63,6 +86,9 @@ export interface CreateProjectBody {
   problem?: string | null;
   solution?: string | null;
   result?: string | null;
+  previewType?: CreateProjectBodyPreviewType;
+  previewUrl?: string | null;
+  previewAlt?: string | null;
   coverImageUrl?: string | null;
   thumbnailUrl?: string | null;
   galleryImages?: string | null;

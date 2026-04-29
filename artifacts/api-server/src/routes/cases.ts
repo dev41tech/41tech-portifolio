@@ -57,7 +57,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {
-  const { slug } = req.params;
+  const slug = String(req.params.slug);
   const rows = await db.select().from(casesTable).where(eq(casesTable.slug, slug)).limit(1);
   const c = rows[0];
 
@@ -74,7 +74,7 @@ router.get("/:slug", async (req: Request, res: Response) => {
 });
 
 router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
-  const { slug } = req.params;
+  const slug = String(req.params.slug);
   const parsed = CreateCaseBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Dados inválidos", details: parsed.error.issues });
@@ -110,7 +110,7 @@ router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.delete("/:slug", requireAuth, async (req: Request, res: Response) => {
-  const { slug } = req.params;
+  const slug = String(req.params.slug);
   await db.delete(casesTable).where(eq(casesTable.slug, slug));
   res.json({ success: true });
 });

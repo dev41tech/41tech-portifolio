@@ -117,9 +117,13 @@ export default function Projects() {
                 <Link href={`/projetos/${project.slug}`}>
                   <div className="group h-full flex flex-col rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] bg-[#0B1020] hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] shadow-lg">
                     <div className="aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-[#061A44] to-[#05070D] relative flex items-center justify-center">
-                      {project.thumbnailUrl || project.coverImageUrl ? (
-                        <img src={project.thumbnailUrl || project.coverImageUrl || ""} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
-                      ) : (
+                      {(() => {
+                        const cardImg = project.thumbnailUrl || (project.previewType === "image" ? project.previewUrl : null) || project.coverImageUrl;
+                        return cardImg ? (
+                          <img src={cardImg} alt={project.previewAlt || project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                        ) : null;
+                      })()}
+                      {!(project.thumbnailUrl || (project.previewType === "image" ? project.previewUrl : null) || project.coverImageUrl) && (
                         <div className="absolute inset-0 flex items-center justify-center opacity-30 group-hover:scale-110 transition-transform duration-700">
                           <svg className="w-1/2 h-1/2 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>

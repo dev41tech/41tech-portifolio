@@ -5,6 +5,7 @@
  * 41 Tech API
  * OpenAPI spec version: 0.1.0
  */
+import type { ProjectPreviewType } from "./projectPreviewType";
 
 export interface Project {
   id: number;
@@ -15,6 +16,9 @@ export interface Project {
   problem?: string | null;
   solution?: string | null;
   result?: string | null;
+  previewType?: ProjectPreviewType;
+  previewUrl?: string | null;
+  previewAlt?: string | null;
   coverImageUrl?: string | null;
   thumbnailUrl?: string | null;
   galleryImages?: string | null;

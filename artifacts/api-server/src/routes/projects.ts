@@ -16,6 +16,9 @@ function mapProject(p: typeof projectsTable.$inferSelect) {
     problem: p.problem,
     solution: p.solution,
     result: p.result,
+    previewType: p.previewType,
+    previewUrl: p.previewUrl,
+    previewAlt: p.previewAlt,
     coverImageUrl: p.coverImageUrl,
     thumbnailUrl: p.thumbnailUrl,
     galleryImages: p.galleryImages,
@@ -60,6 +63,9 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     problem: data.problem ?? null,
     solution: data.solution ?? null,
     result: data.result ?? null,
+    previewType: data.previewType ?? null,
+    previewUrl: data.previewUrl ?? null,
+    previewAlt: data.previewAlt ?? null,
     coverImageUrl: data.coverImageUrl ?? null,
     thumbnailUrl: data.thumbnailUrl ?? null,
     galleryImages: data.galleryImages ?? null,
@@ -75,7 +81,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {
-  const { slug } = req.params;
+  const slug = String(req.params.slug);
   const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
   const project = rows[0];
 
@@ -88,7 +94,7 @@ router.get("/:slug", async (req: Request, res: Response) => {
 });
 
 router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
-  const { slug } = req.params;
+  const slug = String(req.params.slug);
   const parsed = CreateProjectBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Dados inválidos", details: parsed.error.issues });
@@ -105,6 +111,9 @@ router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
       problem: data.problem ?? null,
       solution: data.solution ?? null,
       result: data.result ?? null,
+      previewType: data.previewType ?? null,
+      previewUrl: data.previewUrl ?? null,
+      previewAlt: data.previewAlt ?? null,
       coverImageUrl: data.coverImageUrl ?? null,
       thumbnailUrl: data.thumbnailUrl ?? null,
       galleryImages: data.galleryImages ?? null,
@@ -128,7 +137,7 @@ router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.delete("/:slug", requireAuth, async (req: Request, res: Response) => {
-  const { slug } = req.params;
+  const slug = String(req.params.slug);
   await db.delete(projectsTable).where(eq(projectsTable.slug, slug));
   res.json({ success: true });
 });

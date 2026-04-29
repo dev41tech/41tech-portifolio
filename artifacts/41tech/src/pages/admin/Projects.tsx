@@ -64,6 +64,9 @@ const projectSchema = z.object({
   problem: z.string().optional().nullable(),
   solution: z.string().optional().nullable(),
   result: z.string().optional().nullable(),
+  previewType: z.enum(["image", "video", "none"]).default("none"),
+  previewUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  previewAlt: z.string().optional().nullable(),
   coverImageUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
   thumbnailUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
   galleryImages: z.string().optional().nullable(),
@@ -101,6 +104,9 @@ export default function AdminProjects() {
       problem: "",
       solution: "",
       result: "",
+      previewType: "none",
+      previewUrl: "",
+      previewAlt: "",
       coverImageUrl: "",
       thumbnailUrl: "",
       galleryImages: "",
@@ -122,6 +128,9 @@ export default function AdminProjects() {
       problem: "",
       solution: "",
       result: "",
+      previewType: "none",
+      previewUrl: "",
+      previewAlt: "",
       coverImageUrl: "",
       thumbnailUrl: "",
       galleryImages: "",
@@ -145,6 +154,9 @@ export default function AdminProjects() {
       problem: project.problem || "",
       solution: project.solution || "",
       result: project.result || "",
+      previewType: project.previewType || "none",
+      previewUrl: project.previewUrl || "",
+      previewAlt: project.previewAlt || "",
       coverImageUrl: project.coverImageUrl || "",
       thumbnailUrl: project.thumbnailUrl || "",
       galleryImages: project.galleryImages || "",
@@ -164,6 +176,9 @@ export default function AdminProjects() {
     setIsDeleteOpen(true);
   };
 
+  const watchedPreviewType = form.watch("previewType");
+  const watchedPreviewUrl = form.watch("previewUrl");
+
   const onSubmit = (values: ProjectFormValues) => {
     const data = {
       ...values,
@@ -171,6 +186,9 @@ export default function AdminProjects() {
       problem: values.problem || null,
       solution: values.solution || null,
       result: values.result || null,
+      previewType: values.previewType || null,
+      previewUrl: values.previewUrl || null,
+      previewAlt: values.previewAlt || null,
       coverImageUrl: values.coverImageUrl || null,
       thumbnailUrl: values.thumbnailUrl || null,
       galleryImages: values.galleryImages || null,
@@ -351,43 +369,106 @@ export default function AdminProjects() {
                     )} />
                   </div>
 
+                  <div className="grid grid-cols-1 gap-6 border-t border-border pt-6">
+                    <h3 className="font-medium text-lg">Mídia e Preview do Projeto</h3>
+                    <p className="text-sm text-muted-foreground -mt-4">Defina como o projeto será exibido visualmente na página pública.</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField control={form.control} name="previewType" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo de preview</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value || "none"}>
+                            <FormControl>
+                              <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="none">Nenhum (fallback premium)</SelectItem>
+                              <SelectItem value="image">Imagem / GIF</SelectItem>
+                              <SelectItem value="video">Vídeo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+
+                      <FormField control={form.control} name="previewAlt" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Texto alternativo da preview</FormLabel>
+                          <FormControl><Input {...field} value={field.value || ""} placeholder="Ex: Dashboard de gestão financeira" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    </div>
+
+                    <FormField control={form.control} name="previewUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL da imagem ou vídeo de preview</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="Cole aqui a URL da imagem, gif ou vídeo demonstrativo do projeto." /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+
+                    {watchedPreviewUrl && watchedPreviewType !== "none" && (
+                      <div className="rounded-xl overflow-hidden border border-border bg-muted aspect-video w-full relative">
+                        {watchedPreviewType === "image" ? (
+                          <img
+                            src={watchedPreviewUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                          />
+                        ) : watchedPreviewType === "video" ? (
+                          <video
+                            src={watchedPreviewUrl}
+                            controls
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLVideoElement).style.display = "none"; }}
+                          />
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-border pt-6">
+                    <h3 className="font-medium text-lg md:col-span-2">Imagens Adicionais</h3>
                     <FormField control={form.control} name="coverImageUrl" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL da Imagem de Capa</FormLabel>
-                        <FormControl><Input {...field} value={field.value || ""} /></FormControl>
-                        {field.value && <img src={field.value} alt="Preview" className="mt-2 h-20 w-auto object-cover rounded" />}
+                        <FormLabel>Imagem de capa do projeto</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="https://..." /></FormControl>
+                        {field.value && <img src={field.value} alt="Preview" className="mt-2 h-20 w-auto object-cover rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="thumbnailUrl" render={({ field }) => (
                       <FormItem>
                         <FormLabel>URL da Thumbnail (cards)</FormLabel>
-                        <FormControl><Input {...field} value={field.value || ""} /></FormControl>
-                        {field.value && <img src={field.value} alt="Preview" className="mt-2 h-20 w-auto object-cover rounded" />}
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="https://..." /></FormControl>
+                        {field.value && <img src={field.value} alt="Preview" className="mt-2 h-20 w-auto object-cover rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
                         <FormMessage />
                       </FormItem>
                     )} />
                     <div className="md:col-span-2">
                       <FormField control={form.control} name="galleryImages" render={({ field }) => (
                         <FormItem>
-                          <FormLabel>URLs da Galeria (uma por linha ou separada por vírgula)</FormLabel>
-                          <FormControl><Textarea {...field} value={field.value || ""} className="h-24" /></FormControl>
+                          <FormLabel>Galeria de imagens</FormLabel>
+                          <FormControl><Textarea {...field} value={field.value || ""} className="h-24" placeholder="Adicione uma URL por linha." /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
                     </div>
                     <FormField control={form.control} name="demoUrl" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL do Demo</FormLabel>
-                        <FormControl><Input {...field} value={field.value || ""} /></FormControl>
+                        <FormLabel>Link de demonstração</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="https://..." /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="repositoryUrl" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL do Repositório</FormLabel>
-                        <FormControl><Input {...field} value={field.value || ""} /></FormControl>
+                        <FormLabel>Link do repositório</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="https://github.com/..." /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
