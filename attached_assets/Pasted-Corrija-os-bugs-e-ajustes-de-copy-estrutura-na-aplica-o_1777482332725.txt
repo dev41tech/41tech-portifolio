@@ -1,0 +1,233 @@
+Corrija os bugs e ajustes de copy/estrutura na aplicação 41 Tech Portfolio.
+
+CONTEXTO:
+Após adicionar preview de projeto, a página de detalhe do projeto quebrou com o erro:
+
+Rendered more hooks than during the previous render.
+
+Arquivo indicado:
+src/pages/ProjectDetail.tsx
+Linha aproximada:
+const [previewError, setPreviewError] = useState(false);
+
+Também houve erro de login admin após alteração manual do password_hash para:
+2a7a64e8c82b3d901f8f427dad9ec65c263b482628afb753c51f7be73ef21b0a
+
+Senha desejada:
+41Tech@2026
+
+Além disso, preciso criar uma página “Sobre nós” e trocar textos em terceira pessoa para primeira pessoa.
+
+====================================================================
+1. CORRIGIR ERRO DE HOOKS EM ProjectDetail.tsx
+====================================================================
+
+Problema:
+O componente ProjectDetail está renderizando hooks de forma condicional. Provavelmente existe algum return antes do useState/useMemo/useEffect, causando o erro:
+“Rendered more hooks than during the previous render”.
+
+Correção obrigatória:
+- Todos os hooks devem ficar no topo do componente, antes de qualquer return condicional.
+- Não chamar useState, useEffect, useMemo ou hooks customizados dentro de if, loops ou depois de returns condicionais.
+- Mover:
+  const [previewError, setPreviewError] = useState(false);
+  para o topo do componente, junto com os outros hooks.
+- Se houver project inexistente, loading ou erro, o return condicional deve acontecer somente depois de todos os hooks.
+
+Estrutura esperada:
+
+function ProjectDetail() {
+  const params = ...
+  const [previewError, setPreviewError] = useState(false);
+
+  const project = ...
+  const galleryImages = useMemo(() => {
+    return project?.galleryImages?.split(/[\\n,]/).map(...).filter(Boolean) || [];
+  }, [project?.galleryImages]);
+
+  const metrics = useMemo(() => {
+    return project?.metricsSummary?.split('|').map(...).filter(Boolean) || [];
+  }, [project?.metricsSummary]);
+
+  if (!project) {
+    return <NotFound />;
+  }
+
+  return (...);
+}
+
+Também:
+- Resetar previewError quando mudar o projeto:
+  useEffect(() => {
+    setPreviewError(false);
+  }, [project?.slug]);
+
+Critério de aceite:
+- /projetos/[slug] abre sem erro.
+- Trocar de projeto não quebra.
+- Projeto sem preview não quebra.
+- Projeto com imagem inválida cai no fallback.
+- Projeto com vídeo inválido cai no fallback.
+
+====================================================================
+2. CORRIGIR LOGIN ADMIN / PASSWORD_HASH
+====================================================================
+
+Problema:
+O hash informado:
+2a7a64e8c82b3d901f8f427dad9ec65c263b482628afb753c51f7be73ef21b0a
+
+parece ser SHA-256, não bcrypt. Se o sistema usa bcrypt.compare, esse hash nunca vai validar corretamente como senha bcrypt.
+
+Senha desejada:
+41Tech@2026
+
+Correção:
+- Verificar qual algoritmo o login usa.
+- Se usa bcrypt, gerar corretamente um hash bcrypt para a senha 41Tech@2026.
+- Não comparar senha em texto puro.
+- Não usar SHA-256 se o código está usando bcrypt.
+- Atualizar seed/mock/admin inicial para usar o hash correto.
+- Garantir que ADMIN_PASSWORD do .env possa criar/resetar admin inicial em ambiente dev.
+
+Implemente uma das opções abaixo:
+
+OPÇÃO RECOMENDADA:
+Criar script de reset admin:
+
+scripts/reset-admin-password.ts ou scripts/resetAdminPassword.js
+
+Função:
+- Lê ADMIN_EMAIL e ADMIN_PASSWORD do .env.
+- Gera bcrypt hash da senha.
+- Atualiza o usuário admin no banco/mock/localStorage conforme arquitetura atual.
+- Loga apenas “Senha admin atualizada com sucesso”, sem exibir senha nem hash.
+
+Adicionar script no package.json:
+"admin:reset-password": "tsx scripts/reset-admin-password.ts"
+
+Se o projeto não usa banco real e usa mock/localStorage:
+- Criar botão/fluxo de reset apenas em dev ou documentar como resetar no arquivo seed.
+- Atualizar o admin padrão para:
+  email: admin@41tech.com.br
+  password: 41Tech@2026
+
+Critérios:
+- Login admin funciona com:
+  email: admin@41tech.com.br
+  senha: 41Tech@2026
+- Hash salvo deve ser bcrypt se o login usa bcrypt.
+- README deve explicar como resetar senha admin.
+- Não deixar senha hardcoded em produção, exceto seed/demo local se necessário.
+
+====================================================================
+3. CRIAR PÁGINA “SOBRE NÓS”
+====================================================================
+
+Criar rota pública:
+/sobre-nos
+
+Adicionar link no menu público:
+- Projetos
+- Equipe
+- Sobre nós
+- Falar conosco
+
+Conteúdo da página:
+Título:
+“Sobre nós”
+
+Subtítulo:
+“Somos a 41 Tech, o setor de tecnologia do Grupo 41 focado em transformar operação real em sistemas, automações e inteligência de dados.”
+
+Seções sugeridas:
+
+1. Quem somos
+Texto:
+“Unimos desenvolvimento de software, automação, BI, integrações e inteligência artificial para resolver gargalos operacionais reais dentro de empresas.”
+
+2. O que nos diferencia
+Cards:
+- Entendemos operação antes de escrever código
+- Criamos soluções sob medida
+- Conectamos dados, sistemas e pessoas
+- Pensamos em escala, segurança e manutenção
+
+3. Como trabalhamos
+Etapas:
+- Diagnóstico do processo
+- Desenho da solução
+- Desenvolvimento
+- Validação com usuários
+- Deploy e melhoria contínua
+
+4. Nossa stack
+Mostrar tecnologias já cadastradas ou badges:
+Next.js, React, Node.js, MySQL, Docker, EasyPanel, n8n, Power BI, APIs e IA.
+
+5. CTA final
+Título:
+“Tem um processo manual travando sua operação?”
+Botão:
+“Falar conosco”
+
+O botão deve usar o whatsapp_url configurado nas settings.
+
+====================================================================
+4. TROCAR COPY DE TERCEIRA PESSOA PARA PRIMEIRA PESSOA
+====================================================================
+
+Trocar textos do tipo:
+- “Falar com a 41 Tech”
+- “A 41 Tech pode transformar”
+- “Contato com a 41 Tech”
+
+Por textos em primeira pessoa:
+- “Falar conosco”
+- “Podemos transformar”
+- “Entre em contato conosco”
+
+Aplicar em:
+- Header
+- Hero
+- CTA final
+- Footer
+- Página de projetos
+- Detalhe do projeto
+- Equipe
+- Sobre nós
+- Botões de contato
+- Settings/admin quando for label público
+
+Exemplos:
+Antes:
+“Falar com a 41 Tech”
+Depois:
+“Falar conosco”
+
+Antes:
+“Se existe uma rotina repetitiva, uma planilha crítica ou um processo manual travando sua operação, a 41 Tech pode transformar isso em sistema.”
+Depois:
+“Se existe uma rotina repetitiva, uma planilha crítica ou um processo manual travando sua operação, podemos transformar isso em sistema.”
+
+====================================================================
+5. VALIDAÇÕES FINAIS
+====================================================================
+
+Rodar e corrigir:
+- npm run dev
+- npm run build
+
+Smoke tests:
+1. Home abre.
+2. /projetos abre.
+3. /projetos/hub-corporativo abre sem erro de hooks.
+4. Projeto sem imagem usa fallback.
+5. Projeto com preview_url renderiza imagem/vídeo.
+6. /sobre-nos abre.
+7. Menu mostra “Sobre nós”.
+8. Botões mostram “Falar conosco”.
+9. CTA abre WhatsApp configurado.
+10. Login admin funciona com admin@41tech.com.br e 41Tech@2026.
+11. Admin continua oculto do menu público.
+12. Dockerfile continua funcional.
