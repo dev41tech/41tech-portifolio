@@ -33,7 +33,7 @@ export default function Team() {
             className="max-w-3xl"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
-              Quem Faz a 41 Tech
+              Nossa Equipe
             </div>
             <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-foreground tracking-tight">A Equipe</h1>
             <p className="text-xl md:text-2xl text-[#AAB6D3] leading-relaxed">

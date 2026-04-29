@@ -13,6 +13,7 @@ import Projects from "@/pages/Projects";
 import ProjectDetail from "@/pages/ProjectDetail";
 import Team from "@/pages/Team";
 import CaseDetail from "@/pages/CaseDetail";
+import AboutUs from "@/pages/AboutUs";
 
 // Admin Pages
 import AdminLogin from "@/pages/admin/Login";
@@ -76,6 +77,9 @@ function Router() {
       </Route>
       <Route path="/equipe">
         <PublicLayout><Team /></PublicLayout>
+      </Route>
+      <Route path="/sobre-nos">
+        <PublicLayout><AboutUs /></PublicLayout>
       </Route>
       <Route path="/cases/:slug">
         <PublicLayout><CaseDetail /></PublicLayout>

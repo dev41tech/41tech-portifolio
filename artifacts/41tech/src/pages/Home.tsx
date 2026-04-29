@@ -34,7 +34,7 @@ export default function Home() {
       return;
     }
 
-    const text = `Olá, sou ${contactForm.name}, da empresa ${contactForm.company}. Quero falar com a 41 Tech sobre: ${contactForm.message}. Meu contato é ${contactForm.contact}.`;
+    const text = `Olá, sou ${contactForm.name}, da empresa ${contactForm.company}. Quero conversar sobre: ${contactForm.message}. Meu contato é ${contactForm.contact}.`;
     const url = new URL(settings.whatsappUrl);
     url.searchParams.set("text", text);
     window.open(url.toString(), "_blank", "noopener,noreferrer");
@@ -309,10 +309,10 @@ export default function Home() {
             Quer transformar um processo manual em uma <span className="gradient-text">solução digital?</span>
           </h2>
           <p className="text-xl text-[#AAB6D3] max-w-3xl mx-auto mb-12 leading-relaxed">
-            Se existe uma rotina repetitiva, uma planilha crítica ou um processo manual travando sua operação, a 41 Tech pode transformar isso em sistema.
+            Se existe uma rotina repetitiva, uma planilha crítica ou um processo manual travando sua operação, podemos transformar isso em sistema.
           </p>
           <Button size="lg" onClick={handlePrimaryCtaClick} className="h-16 px-10 text-lg font-bold bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] text-white border-0 glow-blue hover:scale-105 transition-transform">
-            Falar com a 41 Tech
+            Falar conosco
           </Button>
         </motion.div>
       </section>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRoute, Link } from "wouter";
 import { useGetProject, getGetProjectQueryKey, useGetSiteSettings } from "@workspace/api-client-react";
 import { ArrowLeft, ExternalLink, Github, LayoutTemplate, AlertTriangle, Zap, TrendingUp, Send } from "lucide-react";
@@ -14,8 +14,31 @@ export default function ProjectDetail() {
   const { data: project, isLoading, isError } = useGetProject(slug, {
     query: { enabled: !!slug, queryKey: getGetProjectQueryKey(slug) }
   });
-  
+
   const { data: settings } = useGetSiteSettings();
+  const [previewError, setPreviewError] = useState(false);
+
+  useEffect(() => {
+    setPreviewError(false);
+  }, [slug]);
+
+  const galleryImages = useMemo(
+    () => project?.galleryImages?.split(/[\n,]/).map(u => u.trim()).filter(Boolean) ?? [],
+    [project?.galleryImages]
+  );
+
+  const metrics = useMemo(
+    () => project?.metricsSummary?.split('|').map(m => m.trim()).filter(Boolean) ?? [],
+    [project?.metricsSummary]
+  );
+
+  const heroMedia = useMemo(() => {
+    if (!project) return null;
+    if (!previewError && project.previewType === "image" && project.previewUrl) return { type: "image" as const, url: project.previewUrl };
+    if (!previewError && project.previewType === "video" && project.previewUrl) return { type: "video" as const, url: project.previewUrl };
+    if (project.coverImageUrl) return { type: "image" as const, url: project.coverImageUrl };
+    return null;
+  }, [project, previewError]);
 
   const handleContactClick = () => {
     if (settings?.whatsappUrl) {
@@ -48,30 +71,19 @@ export default function ProjectDetail() {
     );
   }
 
-  const [previewError, setPreviewError] = useState(false);
-  const galleryImages = project.galleryImages?.split(/[\n,]/).map(u => u.trim()).filter(Boolean) || [];
-  const metrics = project.metricsSummary?.split('|').map(m => m.trim()).filter(Boolean) || [];
-  const heroMedia = (() => {
-    if (!previewError && project.previewType === "image" && project.previewUrl) return { type: "image" as const, url: project.previewUrl };
-    if (!previewError && project.previewType === "video" && project.previewUrl) return { type: "video" as const, url: project.previewUrl };
-    if (project.coverImageUrl) return { type: "image" as const, url: project.coverImageUrl };
-    return null;
-  })();
-
   return (
     <div className="min-h-screen bg-[#05070D]">
-      {/* Header Hero */}
       <div className="relative pt-32 pb-40 overflow-hidden bg-[#0B1020] border-b border-[rgba(255,255,255,0.05)]">
         <div className="absolute inset-0 tech-grid opacity-10 pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 blur-[150px] rounded-full pointer-events-none" />
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <Link href="/projetos" className="inline-flex items-center text-sm font-bold text-[#AAB6D3] hover:text-[#00D8FF] mb-12 transition-colors uppercase tracking-wider">
             <ArrowLeft className="w-5 h-5 mr-3" />
             Voltar ao Portfólio
           </Link>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -99,9 +111,8 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 -mt-24 relative z-20 pb-32">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -161,9 +172,9 @@ export default function ProjectDetail() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           <div className="lg:col-span-8 space-y-20">
-            
+
             {metrics.length > 0 && (
-              <motion.section 
+              <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -180,7 +191,7 @@ export default function ProjectDetail() {
             )}
 
             {project.fullDescription && (
-              <motion.section 
+              <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -193,7 +204,7 @@ export default function ProjectDetail() {
             )}
 
             {project.problem && (
-              <motion.section 
+              <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -211,7 +222,7 @@ export default function ProjectDetail() {
             )}
 
             {project.solution && (
-              <motion.section 
+              <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -229,7 +240,7 @@ export default function ProjectDetail() {
             )}
 
             {project.result && (
-              <motion.section 
+              <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -247,7 +258,7 @@ export default function ProjectDetail() {
             )}
 
             {galleryImages.length > 0 && (
-              <motion.section 
+              <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -256,14 +267,14 @@ export default function ProjectDetail() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {galleryImages.map((imgUrl, i) => (
                     <div key={i} className="aspect-video w-full rounded-xl overflow-hidden border border-[rgba(255,255,255,0.1)] bg-[#0B1020]">
-                      <img src={imgUrl} alt={`Galeria ${i+1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                      <img src={imgUrl} alt={`Galeria ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                     </div>
                   ))}
                 </div>
               </motion.section>
             )}
 
-            <motion.section 
+            <motion.section
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -275,7 +286,7 @@ export default function ProjectDetail() {
                   Podemos construir uma solução com este mesmo nível de qualidade para a sua empresa.
                 </p>
                 <Button size="lg" onClick={handleContactClick} className="h-14 px-8 text-base font-bold bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] text-white border-0 glow-blue">
-                  Falar com a 41 Tech <Send className="ml-2 w-4 h-4" />
+                  Falar conosco <Send className="ml-2 w-4 h-4" />
                 </Button>
               </div>
             </motion.section>
@@ -284,7 +295,7 @@ export default function ProjectDetail() {
           <div className="lg:col-span-4">
             <div className="p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0B1020] space-y-8 sticky top-32 glassmorphism">
               <h3 className="font-bold text-2xl text-white border-b border-[rgba(255,255,255,0.1)] pb-6">Detalhes Técnicos</h3>
-              
+
               <div className="space-y-6">
                 <div>
                   <span className="text-sm font-bold text-[#AAB6D3] uppercase tracking-wider block mb-3">Status do Projeto</span>
@@ -292,7 +303,7 @@ export default function ProjectDetail() {
                     {project.status === 'completed' ? 'Concluído' : project.status === 'in_progress' ? 'Em Andamento' : project.status}
                   </span>
                 </div>
-                
+
                 {(project.demoUrl || project.repositoryUrl) && (
                   <div className="pt-6 border-t border-[rgba(255,255,255,0.1)] space-y-4">
                     {project.demoUrl && (

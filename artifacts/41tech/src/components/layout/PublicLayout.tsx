@@ -11,13 +11,12 @@ import { useGetSiteSettings } from "@workspace/api-client-react";
 
 export function PublicLayout({ children }: { children: ReactNode }) {
   const { data: settings } = useGetSiteSettings();
-  
+
   const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (settings?.whatsappUrl) {
       e.preventDefault();
       window.open(settings.whatsappUrl, '_blank', 'noopener,noreferrer');
     }
-    // se não tiver whatsappUrl, o href="#contato" será mantido e rolará para a seção de contato
   };
 
   return (
@@ -31,8 +30,9 @@ export function PublicLayout({ children }: { children: ReactNode }) {
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
             <Link href="/projetos" className="hover:text-primary transition-colors">Projetos</Link>
             <Link href="/equipe" className="hover:text-primary transition-colors">Equipe</Link>
+            <Link href="/sobre-nos" className="hover:text-primary transition-colors">Sobre nós</Link>
             <Button asChild className="border-0 text-white bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0]">
-              <a href="#contato" onClick={handleContactClick}>Falar com a 41 Tech</a>
+              <a href="#contato" onClick={handleContactClick}>Falar conosco</a>
             </Button>
           </nav>
 
@@ -47,8 +47,9 @@ export function PublicLayout({ children }: { children: ReactNode }) {
                 <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">Início</Link>
                 <Link href="/projetos" className="text-lg font-medium hover:text-primary transition-colors">Projetos</Link>
                 <Link href="/equipe" className="text-lg font-medium hover:text-primary transition-colors">Equipe</Link>
+                <Link href="/sobre-nos" className="text-lg font-medium hover:text-primary transition-colors">Sobre nós</Link>
                 <Button asChild className="w-full mt-4 bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] border-0 text-white">
-                  <a href="#contato" onClick={handleContactClick}>Falar com a 41 Tech</a>
+                  <a href="#contato" onClick={handleContactClick}>Falar conosco</a>
                 </Button>
               </div>
             </SheetContent>
@@ -75,6 +76,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="/projetos" className="hover:text-primary transition-colors">Projetos</Link></li>
               <li><Link href="/equipe" className="hover:text-primary transition-colors">Equipe</Link></li>
+              <li><Link href="/sobre-nos" className="hover:text-primary transition-colors">Sobre nós</Link></li>
             </ul>
           </div>
           <div>
