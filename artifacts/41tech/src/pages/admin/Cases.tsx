@@ -3,9 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Edit, Trash2, Loader2, ExternalLink } from "lucide-react";
-import { 
-  useListCases, 
+import { Plus, Edit, Trash2, Loader2, ExternalLink, Image as ImageIcon } from "lucide-react";
+import {
+  useListCases,
   getListCasesQueryKey,
   useCreateCase,
   useUpdateCase,
@@ -63,6 +63,10 @@ const caseSchema = z.object({
   solution: z.string().min(10, "Solução é obrigatória"),
   result: z.string().min(10, "Resultado é obrigatório"),
   metricsSummary: z.string().optional().nullable(),
+  coverImageUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  videoUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  galleryImages: z.string().optional().nullable(),
+  relatedUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
   isPublic: z.boolean().default(true),
 });
 
@@ -73,10 +77,10 @@ export default function AdminCases() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
-  
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  
+
   const { data: cases, isLoading } = useListCases();
   const createMutation = useCreateCase();
   const updateMutation = useUpdateCase();
@@ -92,9 +96,16 @@ export default function AdminCases() {
       solution: "",
       result: "",
       metricsSummary: "",
+      coverImageUrl: "",
+      videoUrl: "",
+      galleryImages: "",
+      relatedUrl: "",
       isPublic: true,
     },
   });
+
+  const watchedCoverImageUrl = form.watch("coverImageUrl");
+  const watchedVideoUrl = form.watch("videoUrl");
 
   const handleOpenCreate = () => {
     form.reset({
@@ -105,6 +116,10 @@ export default function AdminCases() {
       solution: "",
       result: "",
       metricsSummary: "",
+      coverImageUrl: "",
+      videoUrl: "",
+      galleryImages: "",
+      relatedUrl: "",
       isPublic: true,
     });
     setEditingSlug(null);
@@ -120,6 +135,10 @@ export default function AdminCases() {
       solution: caseItem.solution,
       result: caseItem.result,
       metricsSummary: caseItem.metricsSummary || "",
+      coverImageUrl: caseItem.coverImageUrl || "",
+      videoUrl: caseItem.videoUrl || "",
+      galleryImages: caseItem.galleryImages || "",
+      relatedUrl: caseItem.relatedUrl || "",
       isPublic: caseItem.isPublic,
     });
     setEditingSlug(caseItem.slug);
@@ -136,6 +155,10 @@ export default function AdminCases() {
       ...values,
       clientSegment: values.clientSegment || null,
       metricsSummary: values.metricsSummary || null,
+      coverImageUrl: values.coverImageUrl || null,
+      videoUrl: values.videoUrl || null,
+      galleryImages: values.galleryImages || null,
+      relatedUrl: values.relatedUrl || null,
     };
 
     if (editingSlug) {
@@ -171,7 +194,7 @@ export default function AdminCases() {
 
   const confirmDelete = () => {
     if (!deletingSlug) return;
-    
+
     deleteMutation.mutate(
       { slug: deletingSlug },
       {
@@ -194,7 +217,7 @@ export default function AdminCases() {
           <h1 className="text-3xl font-bold text-foreground">Cases</h1>
           <p className="text-muted-foreground">Estudos de caso reais detalhando problema, solução e resultados.</p>
         </div>
-        
+
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
             <Button onClick={handleOpenCreate}>
@@ -209,7 +232,7 @@ export default function AdminCases() {
                 Descreva os desafios de negócios e as soluções técnicas implementadas.
               </DialogDescription>
             </DialogHeader>
-            
+
             <ScrollArea className="flex-1 p-6">
               <Form {...form}>
                 <form id="case-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -271,6 +294,77 @@ export default function AdminCases() {
                     </FormItem>
                   )} />
 
+                  {/* ─── Mídia do Case ─── */}
+                  <div className="space-y-6 border-t border-border pt-6">
+                    <div>
+                      <h3 className="font-medium text-lg flex items-center gap-2">
+                        <ImageIcon className="w-5 h-5 text-primary" />
+                        Mídia do Case
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">Adicione imagens e vídeo para enriquecer a apresentação deste case.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField control={form.control} name="coverImageUrl" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Imagem principal do case</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ""} placeholder="https://..." />
+                          </FormControl>
+                          {watchedCoverImageUrl && (
+                            <img
+                              src={watchedCoverImageUrl}
+                              alt="Preview capa"
+                              className="mt-2 h-24 w-full object-cover rounded-lg border border-border"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                            />
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+
+                      <FormField control={form.control} name="videoUrl" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Vídeo demonstrativo do case</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ""} placeholder="https://..." />
+                          </FormControl>
+                          {watchedVideoUrl && (
+                            <video
+                              src={watchedVideoUrl}
+                              controls
+                              muted
+                              playsInline
+                              className="mt-2 h-24 w-full object-cover rounded-lg border border-border"
+                              onError={(e) => { (e.target as HTMLVideoElement).style.display = "none"; }}
+                            />
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    </div>
+
+                    <FormField control={form.control} name="galleryImages" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Galeria de imagens</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} value={field.value || ""} className="h-24" placeholder="Cole uma URL por linha." />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+
+                    <FormField control={form.control} name="relatedUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Link relacionado (demo, artigo, etc.)</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} placeholder="https://..." />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
                   <FormField control={form.control} name="isPublic" render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border p-4 bg-card">
                       <FormControl>
@@ -285,7 +379,7 @@ export default function AdminCases() {
                 </form>
               </Form>
             </ScrollArea>
-            
+
             <div className="p-6 border-t border-border flex justify-end gap-2 bg-background mt-auto">
               <Button variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
               <Button type="submit" form="case-form" disabled={createMutation.isPending || updateMutation.isPending}>
@@ -303,6 +397,7 @@ export default function AdminCases() {
             <TableRow>
               <TableHead>Case</TableHead>
               <TableHead>Segmento</TableHead>
+              <TableHead>Mídia</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -314,12 +409,13 @@ export default function AdminCases() {
                   <TableCell><Skeleton className="h-4 w-48" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                   <TableCell className="text-right"><Skeleton className="h-8 w-24 inline-block" /></TableCell>
                 </TableRow>
               ))
             ) : cases?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                   Nenhum case encontrado.
                 </TableCell>
               </TableRow>
@@ -332,6 +428,13 @@ export default function AdminCases() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {caseItem.clientSegment || "-"}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      {(caseItem as any).coverImageUrl && <Badge variant="outline" className="text-xs">img</Badge>}
+                      {(caseItem as any).videoUrl && <Badge variant="outline" className="text-xs">vídeo</Badge>}
+                      {!(caseItem as any).coverImageUrl && !(caseItem as any).videoUrl && <span className="text-muted-foreground text-xs">—</span>}
+                    </div>
                   </TableCell>
                   <TableCell>
                     {caseItem.isPublic ? (

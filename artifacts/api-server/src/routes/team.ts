@@ -19,6 +19,7 @@ router.get("/", async (_req: Request, res: Response) => {
     avatarUrl: m.avatarUrl,
     linkedinUrl: m.linkedinUrl,
     githubUrl: m.githubUrl,
+    portfolioUrl: m.portfolioUrl,
     sortOrder: m.sortOrder,
     isActive: m.isActive,
     skills: m.skills ?? [],
@@ -42,6 +43,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     avatarUrl: data.avatarUrl ?? null,
     linkedinUrl: data.linkedinUrl ?? null,
     githubUrl: data.githubUrl ?? null,
+    portfolioUrl: (data as any).portfolioUrl ?? null,
     sortOrder: data.sortOrder,
     isActive: data.isActive,
     skills: data.skills,
@@ -49,6 +51,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 
   res.status(201).json({
     ...member,
+    portfolioUrl: member.portfolioUrl,
     skills: member.skills ?? [],
     createdAt: member.createdAt.toISOString(),
     updatedAt: member.updatedAt.toISOString(),
@@ -72,6 +75,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
   res.json({
     ...member,
+    portfolioUrl: member.portfolioUrl,
     skills: member.skills ?? [],
     createdAt: member.createdAt.toISOString(),
     updatedAt: member.updatedAt.toISOString(),
@@ -100,6 +104,7 @@ router.put("/:id", requireAuth, async (req: Request, res: Response) => {
       avatarUrl: data.avatarUrl ?? null,
       linkedinUrl: data.linkedinUrl ?? null,
       githubUrl: data.githubUrl ?? null,
+      portfolioUrl: (data as any).portfolioUrl ?? null,
       sortOrder: data.sortOrder,
       isActive: data.isActive,
       skills: data.skills,
@@ -115,6 +120,7 @@ router.put("/:id", requireAuth, async (req: Request, res: Response) => {
 
   res.json({
     ...member,
+    portfolioUrl: member.portfolioUrl,
     skills: member.skills ?? [],
     createdAt: member.createdAt.toISOString(),
     updatedAt: member.updatedAt.toISOString(),

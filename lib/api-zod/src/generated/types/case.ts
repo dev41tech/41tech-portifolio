@@ -15,6 +15,10 @@ export interface Case {
   solution: string;
   result: string;
   metricsSummary?: string | null;
+  coverImageUrl?: string | null;
+  videoUrl?: string | null;
+  galleryImages?: string | null;
+  relatedUrl?: string | null;
   isPublic: boolean;
   createdAt: string;
   updatedAt: string;

@@ -1,0 +1,160 @@
+Corrija especificamente o painel admin da aplicação 41 Tech.
+
+Problema:
+As páginas públicas já funcionam, mas o painel admin continua sem campos visíveis para cadastrar imagens, vídeos e previews em Projetos, Cases e Equipe.
+
+Objetivo:
+Adicionar uma seção clara chamada “Mídia e Preview” nos formulários admin.
+
+IMPORTANTE:
+Não apenas atualize types/schema. Os campos precisam aparecer visualmente no formulário admin e salvar corretamente.
+
+====================================================================
+1. ADMIN DE PROJETOS
+====================================================================
+
+No modal/formulário de criar/editar projeto, adicionar uma seção visível:
+
+Título da seção:
+“Mídia e Preview do Projeto”
+
+Campos obrigatórios na UI:
+
+- Tipo de preview
+  select: none, image, video
+
+- URL da preview
+  input text/url
+
+- Texto alternativo da preview
+  input text
+
+- Imagem de capa
+  input text/url
+
+- Thumbnail do card
+  input text/url
+
+- Galeria de imagens
+  textarea
+  placeholder: “Cole uma URL por linha”
+
+- Link de demonstração
+  input text/url
+
+- Link do repositório
+  input text/url
+
+Também renderizar uma prévia ao vivo:
+- Se tipo = image e URL preenchida, mostrar imagem.
+- Se tipo = video e URL preenchida, mostrar vídeo com controls.
+- Caso vazio, mostrar fallback.
+
+Garanta que o modal tenha scroll interno para esses campos aparecerem.
+
+====================================================================
+2. ADMIN DE CASES
+====================================================================
+
+No formulário de criar/editar case, adicionar seção:
+
+“Mídia do Case”
+
+Campos:
+
+- Imagem principal do case
+- Vídeo demonstrativo do case
+- Galeria de imagens
+- Métrica principal
+- Link relacionado
+
+Exibir preview da imagem/vídeo no formulário.
+
+====================================================================
+3. ADMIN DE EQUIPE
+====================================================================
+
+No formulário de criar/editar membro, adicionar seção:
+
+“Mídia e Links”
+
+Campos:
+
+- URL do avatar
+- LinkedIn
+- GitHub
+- Portfólio pessoal
+- Skills, separadas por vírgula
+
+Exibir preview do avatar no formulário.
+
+====================================================================
+4. SALVAMENTO
+====================================================================
+
+Verifique o fluxo completo:
+
+- Estado inicial do formulário
+- Inputs controlados
+- handleChange
+- handleSubmit
+- createProject/updateProject
+- createCase/updateCase
+- createTeamMember/updateTeamMember
+- types/interfaces
+- mocks/seeds/localStorage ou banco
+
+Os campos precisam:
+- aparecer ao criar
+- aparecer ao editar
+- salvar
+- continuar preenchidos ao reabrir
+- refletir na área pública
+
+====================================================================
+5. NOMES DE CAMPOS ESPERADOS
+====================================================================
+
+projects:
+- previewType
+- previewUrl
+- previewAlt
+- coverImageUrl
+- thumbnailUrl
+- galleryImages
+- demoUrl
+- repositoryUrl
+
+cases:
+- coverImageUrl
+- videoUrl
+- galleryImages
+- mainMetric
+- relatedUrl
+
+team_members:
+- avatarUrl
+- linkedinUrl
+- githubUrl
+- portfolioUrl
+- skills
+
+Atenção:
+Se o projeto usa snake_case internamente, mantenha compatibilidade no mapper.
+Mas a UI precisa funcionar.
+
+====================================================================
+6. CRITÉRIOS DE ACEITE
+====================================================================
+
+1. Abro Admin > Projetos > Editar Projeto.
+2. Vejo a seção “Mídia e Preview do Projeto”.
+3. Consigo colar uma URL de imagem.
+4. Vejo a imagem renderizada no próprio modal.
+5. Salvo o projeto.
+6. Reabro o projeto.
+7. A URL continua preenchida.
+8. A imagem aparece no card público e na página do projeto.
+9. Admin > Cases também tem campos de mídia.
+10. Admin > Equipe também tem avatar e links.
+11. npm run build funciona.

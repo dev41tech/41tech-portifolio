@@ -6,13 +6,8 @@ import { requireAuth } from "../middlewares/requireAuth";
 
 const router = Router();
 
-router.get("/", async (req: Request, res: Response) => {
-  const parsed = ListCasesQueryParams.safeParse(req.query);
-  const params = parsed.success ? parsed.data : {};
-
-  const rows = await db.select().from(casesTable).orderBy(casesTable.createdAt);
-
-  const cases = rows.map((c) => ({
+function mapCase(c: typeof casesTable.$inferSelect) {
+  return {
     id: c.id,
     title: c.title,
     slug: c.slug,
@@ -21,11 +16,22 @@ router.get("/", async (req: Request, res: Response) => {
     solution: c.solution,
     result: c.result,
     metricsSummary: c.metricsSummary,
+    coverImageUrl: c.coverImageUrl,
+    videoUrl: c.videoUrl,
+    galleryImages: c.galleryImages,
+    relatedUrl: c.relatedUrl,
     isPublic: c.isPublic,
     createdAt: c.createdAt.toISOString(),
     updatedAt: c.updatedAt.toISOString(),
-  }));
+  };
+}
 
+router.get("/", async (req: Request, res: Response) => {
+  const parsed = ListCasesQueryParams.safeParse(req.query);
+  const params = parsed.success ? parsed.data : {};
+
+  const rows = await db.select().from(casesTable).orderBy(casesTable.createdAt);
+  const cases = rows.map(mapCase);
   const filtered = params.public_only ? cases.filter((c) => c.isPublic) : cases;
   res.json(filtered);
 });
@@ -46,14 +52,14 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     solution: data.solution,
     result: data.result,
     metricsSummary: data.metricsSummary ?? null,
+    coverImageUrl: (data as any).coverImageUrl ?? null,
+    videoUrl: (data as any).videoUrl ?? null,
+    galleryImages: (data as any).galleryImages ?? null,
+    relatedUrl: (data as any).relatedUrl ?? null,
     isPublic: data.isPublic,
   }).returning();
 
-  res.status(201).json({
-    ...c,
-    createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
-  });
+  res.status(201).json(mapCase(c));
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {
@@ -66,11 +72,7 @@ router.get("/:slug", async (req: Request, res: Response) => {
     return;
   }
 
-  res.json({
-    ...c,
-    createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
-  });
+  res.json(mapCase(c));
 });
 
 router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
@@ -91,6 +93,10 @@ router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
       solution: data.solution,
       result: data.result,
       metricsSummary: data.metricsSummary ?? null,
+      coverImageUrl: (data as any).coverImageUrl ?? null,
+      videoUrl: (data as any).videoUrl ?? null,
+      galleryImages: (data as any).galleryImages ?? null,
+      relatedUrl: (data as any).relatedUrl ?? null,
       isPublic: data.isPublic,
       updatedAt: new Date(),
     })
@@ -102,11 +108,7 @@ router.put("/:slug", requireAuth, async (req: Request, res: Response) => {
     return;
   }
 
-  res.json({
-    ...c,
-    createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
-  });
+  res.json(mapCase(c));
 });
 
 router.delete("/:slug", requireAuth, async (req: Request, res: Response) => {

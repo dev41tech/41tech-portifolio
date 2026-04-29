@@ -10,6 +10,7 @@ export const teamMembersTable = pgTable("team_members", {
   avatarUrl: text("avatar_url"),
   linkedinUrl: text("linkedin_url"),
   githubUrl: text("github_url"),
+  portfolioUrl: text("portfolio_url"),
   skills: text("skills").array().notNull().default([]),
   sortOrder: integer("sort_order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),

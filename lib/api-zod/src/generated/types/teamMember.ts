@@ -14,6 +14,7 @@ export interface TeamMember {
   avatarUrl?: string | null;
   linkedinUrl?: string | null;
   githubUrl?: string | null;
+  portfolioUrl?: string | null;
   sortOrder: number;
   isActive: boolean;
   skills: string[];

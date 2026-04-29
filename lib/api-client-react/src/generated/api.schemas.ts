@@ -133,6 +133,7 @@ export interface TeamMember {
   avatarUrl?: string | null;
   linkedinUrl?: string | null;
   githubUrl?: string | null;
+  portfolioUrl?: string | null;
   sortOrder: number;
   isActive: boolean;
   skills: string[];
@@ -147,6 +148,7 @@ export interface CreateTeamMemberBody {
   avatarUrl?: string | null;
   linkedinUrl?: string | null;
   githubUrl?: string | null;
+  portfolioUrl?: string | null;
   sortOrder: number;
   isActive: boolean;
   skills: string[];
@@ -161,6 +163,10 @@ export interface Case {
   solution: string;
   result: string;
   metricsSummary?: string | null;
+  coverImageUrl?: string | null;
+  videoUrl?: string | null;
+  galleryImages?: string | null;
+  relatedUrl?: string | null;
   isPublic: boolean;
   createdAt: string;
   updatedAt: string;
@@ -174,6 +180,10 @@ export interface CreateCaseBody {
   solution: string;
   result: string;
   metricsSummary?: string | null;
+  coverImageUrl?: string | null;
+  videoUrl?: string | null;
+  galleryImages?: string | null;
+  relatedUrl?: string | null;
   isPublic: boolean;
 }
 

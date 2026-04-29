@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Edit, Trash2, Loader2, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import { 
   useListTeamMembers, 
   getListTeamMembersQueryKey,
@@ -54,6 +54,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const teamSchema = z.object({
   name: z.string().min(2, "Nome é obrigatório"),
@@ -62,9 +63,10 @@ const teamSchema = z.object({
   avatarUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
   linkedinUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
   githubUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  portfolioUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
   sortOrder: z.coerce.number().int(),
   isActive: z.boolean().default(true),
-  skillsStr: z.string(), // We'll convert this to string[] on submit
+  skillsStr: z.string(),
 });
 
 type TeamFormValues = z.infer<typeof teamSchema>;
@@ -92,11 +94,14 @@ export default function AdminTeam() {
       avatarUrl: "",
       linkedinUrl: "",
       githubUrl: "",
+      portfolioUrl: "",
       sortOrder: 0,
       isActive: true,
       skillsStr: "",
     },
   });
+
+  const watchedAvatarUrl = form.watch("avatarUrl");
 
   const handleOpenCreate = () => {
     form.reset({
@@ -106,6 +111,7 @@ export default function AdminTeam() {
       avatarUrl: "",
       linkedinUrl: "",
       githubUrl: "",
+      portfolioUrl: "",
       sortOrder: team ? team.length * 10 : 0,
       isActive: true,
       skillsStr: "",
@@ -122,6 +128,7 @@ export default function AdminTeam() {
       avatarUrl: member.avatarUrl || "",
       linkedinUrl: member.linkedinUrl || "",
       githubUrl: member.githubUrl || "",
+      portfolioUrl: member.portfolioUrl || "",
       sortOrder: member.sortOrder,
       isActive: member.isActive,
       skillsStr: member.skills?.join(", ") || "",
@@ -151,6 +158,7 @@ export default function AdminTeam() {
       avatarUrl: values.avatarUrl || null,
       linkedinUrl: values.linkedinUrl || null,
       githubUrl: values.githubUrl || null,
+      portfolioUrl: values.portfolioUrl || null,
     };
 
     if (editingId) {
@@ -217,49 +225,58 @@ export default function AdminTeam() {
               Adicionar Membro
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
+          <DialogContent className="max-w-2xl max-h-[90vh] p-0 flex flex-col">
+            <DialogHeader className="p-6 border-b border-border">
               <DialogTitle>{editingId ? "Editar Membro" : "Novo Membro da Equipe"}</DialogTitle>
               <DialogDescription>
                 Detalhes do membro que aparecerão na página Equipe.
               </DialogDescription>
             </DialogHeader>
-            
-            <Form {...form}>
-              <form id="team-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="name" render={({ field }) => (
+
+            <ScrollArea className="flex-1 p-6">
+              <Form {...form}>
+                <form id="team-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="name" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome Completo</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="roleTitle" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cargo</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <FormField control={form.control} name="bio" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome Completo</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
+                      <FormLabel>Minibiografia</FormLabel>
+                      <FormControl><Textarea {...field} value={field.value || ""} className="h-20" /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <FormField control={form.control} name="roleTitle" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cargo</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                </div>
 
-                <FormField control={form.control} name="bio" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Minibiografia</FormLabel>
-                    <FormControl><Textarea {...field} value={field.value || ""} className="h-20" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="avatarUrl" render={({ field }) => (
                     <FormItem>
                       <FormLabel>URL do Avatar</FormLabel>
-                      <FormControl><Input {...field} value={field.value || ""} /></FormControl>
+                      <FormControl><Input {...field} value={field.value || ""} placeholder="https://..." /></FormControl>
+                      {watchedAvatarUrl && (
+                        <img
+                          src={watchedAvatarUrl}
+                          alt="Preview avatar"
+                          className="mt-2 h-16 w-16 rounded-full object-cover border border-border"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                        />
+                      )}
                       <FormMessage />
                     </FormItem>
                   )} />
+
                   <FormField control={form.control} name="skillsStr" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Habilidades (separadas por vírgula)</FormLabel>
@@ -267,48 +284,57 @@ export default function AdminTeam() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <FormField control={form.control} name="linkedinUrl" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>LinkedIn URL</FormLabel>
-                      <FormControl><Input {...field} value={field.value || ""} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="githubUrl" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>GitHub URL</FormLabel>
-                      <FormControl><Input {...field} value={field.value || ""} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="sortOrder" render={({ field }) => (
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="linkedinUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>LinkedIn</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="https://linkedin.com/in/..." /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="githubUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>GitHub</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="https://github.com/..." /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <FormField control={form.control} name="portfolioUrl" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ordem de Exibição (menor primeiro)</FormLabel>
-                      <FormControl><Input type="number" {...field} /></FormControl>
+                      <FormLabel>Portfolio / Site pessoal</FormLabel>
+                      <FormControl><Input {...field} value={field.value || ""} placeholder="https://..." /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <FormField control={form.control} name="isActive" render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Ativo</FormLabel>
-                        <DialogDescription>
-                          Exibir no site
-                        </DialogDescription>
-                      </div>
-                      <FormControl>
-                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                    </FormItem>
-                  )} />
-                </div>
-              </form>
-            </Form>
-            
-            <div className="flex justify-end gap-2 pt-4 border-t border-border">
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="sortOrder" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ordem de Exibição (menor primeiro)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="isActive" render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Ativo</FormLabel>
+                          <p className="text-sm text-muted-foreground">Exibir no site</p>
+                        </div>
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+                </form>
+              </Form>
+            </ScrollArea>
+
+            <div className="p-6 border-t border-border flex justify-end gap-2 bg-background mt-auto">
               <Button variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
               <Button type="submit" form="team-form" disabled={createMutation.isPending || updateMutation.isPending}>
                 {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

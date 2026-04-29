@@ -796,6 +796,9 @@ components:
         githubUrl:
           type: string
           nullable: true
+        portfolioUrl:
+          type: string
+          nullable: true
         sortOrder:
           type: integer
         isActive:
@@ -837,6 +840,9 @@ components:
         githubUrl:
           type: string
           nullable: true
+        portfolioUrl:
+          type: string
+          nullable: true
         sortOrder:
           type: integer
         isActive:
@@ -873,6 +879,18 @@ components:
         metricsSummary:
           type: string
           nullable: true
+        coverImageUrl:
+          type: string
+          nullable: true
+        videoUrl:
+          type: string
+          nullable: true
+        galleryImages:
+          type: string
+          nullable: true
+        relatedUrl:
+          type: string
+          nullable: true
         isPublic:
           type: boolean
         createdAt:
@@ -907,6 +925,18 @@ components:
         result:
           type: string
         metricsSummary:
+          type: string
+          nullable: true
+        coverImageUrl:
+          type: string
+          nullable: true
+        videoUrl:
+          type: string
+          nullable: true
+        galleryImages:
+          type: string
+          nullable: true
+        relatedUrl:
           type: string
           nullable: true
         isPublic:
