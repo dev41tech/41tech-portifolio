@@ -1,4 +1,4 @@
-FROM node:22-alpine AS base
+FROM node:22-slim AS base
 RUN npm install -g pnpm@10
 
 FROM base AS deps
@@ -26,7 +26,7 @@ ENV PORT=8080
 RUN pnpm --filter @workspace/41tech run build
 RUN pnpm --filter @workspace/api-server run build
 
-FROM node:22-alpine AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
 RUN npm install -g pnpm@10
