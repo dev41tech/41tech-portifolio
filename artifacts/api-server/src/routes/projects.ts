@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { db, projectsTable } from "@workspace/db";
+import { db, projectsTable, projectTechnologiesTable, technologiesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { CreateProjectBody, ListProjectsQueryParams } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
@@ -31,6 +31,22 @@ function mapProject(p: typeof projectsTable.$inferSelect) {
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
   };
+}
+
+async function getProjectTechnologies(projectId: number) {
+  const rows = await db
+    .select({ tech: technologiesTable })
+    .from(projectTechnologiesTable)
+    .innerJoin(technologiesTable, eq(projectTechnologiesTable.technologyId, technologiesTable.id))
+    .where(eq(projectTechnologiesTable.projectId, projectId));
+  return rows.map((r) => ({
+    id: r.tech.id,
+    name: r.tech.name,
+    iconUrl: r.tech.iconUrl,
+    category: r.tech.category,
+    createdAt: r.tech.createdAt.toISOString(),
+    updatedAt: r.tech.updatedAt.toISOString(),
+  }));
 }
 
 router.get("/", async (req: Request, res: Response) => {
@@ -78,6 +94,50 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
   }).returning();
 
   res.status(201).json(mapProject(project));
+});
+
+router.get("/:slug/technologies", async (req: Request, res: Response) => {
+  const slug = String(req.params.slug);
+  const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
+  const project = rows[0];
+
+  if (!project) {
+    res.status(404).json({ error: "Projeto não encontrado" });
+    return;
+  }
+
+  res.json(await getProjectTechnologies(project.id));
+});
+
+router.put("/:slug/technologies", requireAuth, async (req: Request, res: Response) => {
+  const slug = String(req.params.slug);
+  const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
+  const project = rows[0];
+
+  if (!project) {
+    res.status(404).json({ error: "Projeto não encontrado" });
+    return;
+  }
+
+  const { technologyIds } = req.body;
+  if (!Array.isArray(technologyIds)) {
+    res.status(400).json({ error: "technologyIds deve ser um array" });
+    return;
+  }
+
+  const validIds: number[] = technologyIds.filter(
+    (id: unknown) => typeof id === "number" && Number.isInteger(id) && id > 0
+  );
+
+  await db.delete(projectTechnologiesTable).where(eq(projectTechnologiesTable.projectId, project.id));
+
+  if (validIds.length > 0) {
+    await db.insert(projectTechnologiesTable).values(
+      validIds.map((technologyId) => ({ projectId: project.id, technologyId }))
+    );
+  }
+
+  res.json(await getProjectTechnologies(project.id));
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {

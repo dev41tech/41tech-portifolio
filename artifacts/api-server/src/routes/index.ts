@@ -7,6 +7,7 @@ import casesRouter from "./cases";
 import technologiesRouter from "./technologies";
 import statsRouter from "./stats";
 import settingsRouter from "./settings";
+import uploadRouter from "./upload";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use("/cases", casesRouter);
 router.use("/technologies", technologiesRouter);
 router.use("/stats", statsRouter);
 router.use("/settings", settingsRouter);
+router.use("/upload", uploadRouter);
 
 export default router;

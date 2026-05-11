@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, Edit, Trash2, ExternalLink, Loader2 } from "lucide-react";
-import { 
-  useListProjects, 
+import {
+  useListProjects,
   getListProjectsQueryKey,
   useCreateProject,
   useUpdateProject,
-  useDeleteProject
+  useDeleteProject,
+  useListTechnologies,
+  useGetProjectTechnologies,
+  useSetProjectTechnologies,
 } from "@workspace/api-client-react";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 import {
   Dialog,
   DialogContent,
@@ -64,10 +68,10 @@ const projectSchema = z.object({
   solution: z.string().optional().nullable(),
   result: z.string().optional().nullable(),
   previewType: z.enum(["image", "video", "none"]).default("none"),
-  previewUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  previewUrl: z.string().optional().nullable().or(z.literal("")),
   previewAlt: z.string().optional().nullable(),
-  coverImageUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
-  thumbnailUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  coverImageUrl: z.string().optional().nullable().or(z.literal("")),
+  thumbnailUrl: z.string().optional().nullable().or(z.literal("")),
   galleryImages: z.string().optional().nullable(),
   category: z.string().optional().nullable(),
   metricsSummary: z.string().optional().nullable(),
@@ -84,14 +88,26 @@ export default function AdminProjects() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
-  
+  const [selectedTechIds, setSelectedTechIds] = useState<number[]>([]);
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  
+
   const { data: projects, isLoading } = useListProjects();
+  const { data: allTechnologies } = useListTechnologies();
+  const { data: existingTechs } = useGetProjectTechnologies(editingSlug ?? "", {
+    query: { enabled: !!editingSlug && isFormOpen },
+  });
   const createMutation = useCreateProject();
   const updateMutation = useUpdateProject();
   const deleteMutation = useDeleteProject();
+  const setTechsMutation = useSetProjectTechnologies();
+
+  useEffect(() => {
+    if (existingTechs !== undefined) {
+      setSelectedTechIds(existingTechs.map((t) => t.id));
+    }
+  }, [existingTechs]);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -140,6 +156,7 @@ export default function AdminProjects() {
       status: "published",
       featured: false,
     });
+    setSelectedTechIds([]);
     setEditingSlug(null);
     setIsFormOpen(true);
   };
@@ -178,6 +195,20 @@ export default function AdminProjects() {
   const watchedPreviewType = form.watch("previewType");
   const watchedPreviewUrl = form.watch("previewUrl");
 
+  const saveTechnologies = (slug: string) => {
+    setTechsMutation.mutate(
+      { slug, technologyIds: selectedTechIds },
+      {
+        onError: () => {
+          toast({
+            title: "Projeto salvo, mas houve um erro ao salvar as tecnologias",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
+
   const onSubmit = (values: ProjectFormValues) => {
     const data = {
       ...values,
@@ -202,13 +233,14 @@ export default function AdminProjects() {
         { slug: editingSlug, data },
         {
           onSuccess: () => {
+            saveTechnologies(editingSlug);
             queryClient.invalidateQueries({ queryKey: getListProjectsQueryKey() });
             toast({ title: "Projeto atualizado com sucesso" });
             setIsFormOpen(false);
           },
           onError: (error: any) => {
             toast({ title: "Erro ao atualizar projeto", description: error.error || "Tente novamente", variant: "destructive" });
-          }
+          },
         }
       );
     } else {
@@ -216,13 +248,14 @@ export default function AdminProjects() {
         { data },
         {
           onSuccess: () => {
+            saveTechnologies(values.slug);
             queryClient.invalidateQueries({ queryKey: getListProjectsQueryKey() });
             toast({ title: "Projeto criado com sucesso" });
             setIsFormOpen(false);
           },
           onError: (error: any) => {
             toast({ title: "Erro ao criar projeto", description: error.error || "Tente novamente", variant: "destructive" });
-          }
+          },
         }
       );
     }
@@ -402,7 +435,19 @@ export default function AdminProjects() {
                     <FormField control={form.control} name="previewUrl" render={({ field }) => (
                       <FormItem>
                         <FormLabel>URL da imagem ou vídeo de preview</FormLabel>
-                        <FormControl><Input {...field} value={field.value || ""} placeholder="Cole aqui a URL da imagem, gif ou vídeo demonstrativo do projeto." /></FormControl>
+                        <FormControl>
+                          {watchedPreviewType === "video" ? (
+                            <Input {...field} value={field.value || ""} placeholder="Cole aqui a URL do vídeo demonstrativo." />
+                          ) : (
+                            <ImageUploadField
+                              value={field.value || ""}
+                              onChange={field.onChange}
+                              folder="projects"
+                              placeholder="Cole URL ou faça upload da imagem/GIF de preview."
+                              previewClassName="hidden"
+                            />
+                          )}
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -435,16 +480,30 @@ export default function AdminProjects() {
                     <FormField control={form.control} name="coverImageUrl" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Imagem de capa do projeto</FormLabel>
-                        <FormControl><Input {...field} value={field.value || ""} placeholder="https://..." /></FormControl>
-                        {field.value && <img src={field.value} alt="Preview" className="mt-2 h-20 w-auto object-cover rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                        <FormControl>
+                          <ImageUploadField
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            folder="projects"
+                            placeholder="https://... ou clique em upload"
+                            previewClassName="h-20 w-auto"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="thumbnailUrl" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL da Thumbnail (cards)</FormLabel>
-                        <FormControl><Input {...field} value={field.value || ""} placeholder="https://..." /></FormControl>
-                        {field.value && <img src={field.value} alt="Preview" className="mt-2 h-20 w-auto object-cover rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                        <FormLabel>Thumbnail (cards)</FormLabel>
+                        <FormControl>
+                          <ImageUploadField
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            folder="projects"
+                            placeholder="https://... ou clique em upload"
+                            previewClassName="h-20 w-auto"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -473,6 +532,40 @@ export default function AdminProjects() {
                     )} />
                   </div>
 
+                  {/* Stack utilizada */}
+                  <div className="border-t border-border pt-6 space-y-3">
+                    <h3 className="font-medium text-lg">Stack Utilizada</h3>
+                    <p className="text-sm text-muted-foreground -mt-1">Selecione as tecnologias usadas neste projeto.</p>
+                    {!allTechnologies?.length ? (
+                      <p className="text-sm text-muted-foreground italic">Nenhuma tecnologia cadastrada. Acesse a seção Tecnologias para adicionar.</p>
+                    ) : (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-1 max-h-52 overflow-y-auto border border-border rounded-md p-3 bg-background">
+                        {allTechnologies.map((tech) => (
+                          <label
+                            key={tech.id}
+                            className="flex items-center gap-2 cursor-pointer py-1.5 px-2 rounded hover:bg-muted transition-colors select-none"
+                          >
+                            <Checkbox
+                              checked={selectedTechIds.includes(tech.id)}
+                              onCheckedChange={(checked) => {
+                                setSelectedTechIds((prev) =>
+                                  checked ? [...prev, tech.id] : prev.filter((id) => id !== tech.id)
+                                );
+                              }}
+                            />
+                            {tech.iconUrl && (
+                              <img src={tech.iconUrl} alt={tech.name} className="w-4 h-4 object-contain shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                            )}
+                            <span className="text-sm truncate">{tech.name}</span>
+                            {tech.category && (
+                              <span className="text-xs text-muted-foreground ml-auto shrink-0">{tech.category}</span>
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <FormField control={form.control} name="featured" render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border p-4 bg-card">
                       <FormControl>
@@ -490,8 +583,8 @@ export default function AdminProjects() {
 
             <div className="shrink-0 p-6 border-t border-border flex justify-end gap-2 bg-background">
               <Button variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
-              <Button type="submit" form="project-form" disabled={createMutation.isPending || updateMutation.isPending}>
-                {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Button type="submit" form="project-form" disabled={createMutation.isPending || updateMutation.isPending || setTechsMutation.isPending}>
+                {(createMutation.isPending || updateMutation.isPending || setTechsMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Salvar
               </Button>
             </div>

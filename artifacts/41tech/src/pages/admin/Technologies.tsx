@@ -4,13 +4,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, Edit, Trash2, Loader2, Cpu } from "lucide-react";
-import { 
-  useListTechnologies, 
+import {
+  useListTechnologies,
   getListTechnologiesQueryKey,
   useCreateTechnology,
   useUpdateTechnology,
-  useDeleteTechnology
+  useDeleteTechnology,
 } from "@workspace/api-client-react";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -53,7 +54,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const techSchema = z.object({
   name: z.string().min(2, "Nome é obrigatório"),
   category: z.string().optional().nullable(),
-  iconUrl: z.string().url("Deve ser uma URL válida").optional().nullable().or(z.literal("")),
+  iconUrl: z.string().optional().nullable().or(z.literal("")),
 });
 
 type TechFormValues = z.infer<typeof techSchema>;
@@ -200,8 +201,16 @@ export default function AdminTechnologies() {
                 )} />
                 <FormField control={form.control} name="iconUrl" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>URL do Ícone</FormLabel>
-                    <FormControl><Input {...field} value={field.value || ""} /></FormControl>
+                    <FormLabel>Ícone (URL ou upload)</FormLabel>
+                    <FormControl>
+                      <ImageUploadField
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        folder="technologies"
+                        placeholder="https://... ou clique em upload"
+                        previewClassName="h-10 w-10"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />

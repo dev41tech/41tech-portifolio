@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Server, Activity, Database, Blocks, LayoutTemplate, Workflow, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useListProjects, useGetSiteSettings } from "@workspace/api-client-react";
+import { useListProjects, useGetSiteSettings, useListTechnologies } from "@workspace/api-client-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Home() {
   const { data: projects } = useListProjects({ featured: true });
   const { data: settings } = useGetSiteSettings();
+  const { data: technologies } = useListTechnologies();
   const { toast } = useToast();
   
   const [videoError, setVideoError] = useState(false);
@@ -61,20 +62,16 @@ export default function Home() {
     { title: "Infra Docker e Deploy", description: "Containerização e deploy seguro via Docker e EasyPanel com CI/CD.", icon: Server },
   ];
 
-  const techStack = [
-    { category: "Front-end", techs: ["React", "Next.js", "TypeScript"] },
-    { category: "Back-end", techs: ["Node.js", "Express", "MySQL", "PostgreSQL"] },
-    { category: "Dados & BI", techs: ["Power BI", "Drizzle ORM"] },
-    { category: "Automação", techs: ["n8n", "APIs REST", "Webhooks"] },
-    { category: "Infra & Deploy", techs: ["Docker", "EasyPanel", "GitHub"] },
-  ];
-
-  const inferCategory = (title: string) => {
-    const t = title.toLowerCase();
-    if (t.includes('dashboard') || t.includes('bi') || t.includes('dados')) return "BI & Dados";
-    if (t.includes('automação') || t.includes('integração') || t.includes('n8n')) return "Automação";
-    return "Plataforma Web";
-  };
+  const techGroups = useMemo(() => {
+    if (!technologies?.length) return [];
+    const map: Record<string, typeof technologies> = {};
+    for (const tech of technologies) {
+      const cat = tech.category || "Outros";
+      if (!map[cat]) map[cat] = [];
+      map[cat].push(tech);
+    }
+    return Object.entries(map).map(([category, techs]) => ({ category, techs }));
+  }, [technologies]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -257,42 +254,56 @@ export default function Home() {
       )}
 
       {/* Tech Stack */}
-      <section className="py-32 bg-[#0B1020] border-y border-[rgba(255,255,255,0.05)]">
-        <div className="container mx-auto px-4">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground tracking-tight">Stack Tecnológico</h2>
-            <p className="text-xl text-[#AAB6D3] max-w-2xl mx-auto">Utilizamos as ferramentas certas para cada problema real.</p>
-          </motion.div>
+      {techGroups.length > 0 && (
+        <section className="py-32 bg-[#0B1020] border-y border-[rgba(255,255,255,0.05)]">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              className="text-center mb-20"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground tracking-tight">Stack Tecnológico</h2>
+              <p className="text-xl text-[#AAB6D3] max-w-2xl mx-auto">Utilizamos as ferramentas certas para cada problema real.</p>
+            </motion.div>
 
-          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {techStack.map((group, i) => (
-              <motion.div 
-                key={group.category}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: i * 0.1 }}
-                className="space-y-6"
-              >
-                <h3 className="text-xl font-bold text-white border-b border-[rgba(255,255,255,0.1)] pb-4">{group.category}</h3>
-                <div className="flex flex-wrap gap-3">
-                  {group.techs.map(t => (
-                    <div key={t} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[rgba(18,61,255,0.12)] border border-[rgba(18,61,255,0.3)] text-white hover:bg-[rgba(18,61,255,0.2)] hover:scale-105 hover:border-[#00D8FF]/50 transition-all cursor-default">
-                      <span className="text-[#00D8FF] font-bold text-lg leading-none">{t.charAt(0)}</span>
-                      <span className="font-mono text-sm">{t}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
+            <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+              {techGroups.map((group, i) => (
+                <motion.div
+                  key={group.category}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: i * 0.1 }}
+                  className="space-y-6"
+                >
+                  <h3 className="text-xl font-bold text-white border-b border-[rgba(255,255,255,0.1)] pb-4">{group.category}</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {group.techs.map((tech) => (
+                      <div
+                        key={tech.id}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[rgba(18,61,255,0.12)] border border-[rgba(18,61,255,0.3)] text-white hover:bg-[rgba(18,61,255,0.2)] hover:scale-105 hover:border-[#00D8FF]/50 transition-all cursor-default"
+                      >
+                        {tech.iconUrl ? (
+                          <img
+                            src={tech.iconUrl}
+                            alt={tech.name}
+                            className="w-5 h-5 object-contain"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                          />
+                        ) : (
+                          <span className="text-[#00D8FF] font-bold text-lg leading-none">{tech.name.charAt(0)}</span>
+                        )}
+                        <span className="font-mono text-sm">{tech.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-40 relative overflow-hidden bg-gradient-to-b from-[#05070D] to-[#061A44]">

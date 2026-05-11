@@ -55,6 +55,9 @@ app.use(
 
 app.use("/api", router);
 
+const uploadsDir = process.env.UPLOADS_DIR ?? path.join(process.cwd(), "uploads");
+app.use("/uploads", express.static(uploadsDir));
+
 const frontendDistPath = process.env.FRONTEND_DIST_PATH;
 if (frontendDistPath) {
   app.use(express.static(frontendDistPath));

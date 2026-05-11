@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRoute, Link } from "wouter";
-import { useGetProject, getGetProjectQueryKey, useGetSiteSettings } from "@workspace/api-client-react";
+import { useGetProject, getGetProjectQueryKey, useGetSiteSettings, useGetProjectTechnologies } from "@workspace/api-client-react";
 import { ArrowLeft, ExternalLink, Github, LayoutTemplate, AlertTriangle, Zap, TrendingUp, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +16,9 @@ export default function ProjectDetail() {
   });
 
   const { data: settings } = useGetSiteSettings();
+  const { data: projectTechs } = useGetProjectTechnologies(slug, {
+    query: { enabled: !!slug }
+  });
   const [previewError, setPreviewError] = useState(false);
 
   useEffect(() => {
@@ -303,6 +306,33 @@ export default function ProjectDetail() {
                     {project.status === 'completed' ? 'Concluído' : project.status === 'in_progress' ? 'Em Andamento' : project.status}
                   </span>
                 </div>
+
+                {projectTechs && projectTechs.length > 0 && (
+                  <div className="pt-6 border-t border-[rgba(255,255,255,0.1)]">
+                    <span className="text-sm font-bold text-[#AAB6D3] uppercase tracking-wider block mb-4">Stack Utilizada</span>
+                    <div className="flex flex-wrap gap-2">
+                      {projectTechs.map((tech) => (
+                        <div
+                          key={tech.id}
+                          title={tech.category ?? undefined}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(18,61,255,0.08)] border border-[rgba(18,61,255,0.2)] text-white text-xs hover:border-[#00D8FF]/40 transition-colors"
+                        >
+                          {tech.iconUrl ? (
+                            <img
+                              src={tech.iconUrl}
+                              alt={tech.name}
+                              className="w-4 h-4 object-contain"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                            />
+                          ) : (
+                            <span className="text-[#00D8FF] font-bold text-sm leading-none">{tech.name.charAt(0)}</span>
+                          )}
+                          <span className="font-mono">{tech.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {(project.demoUrl || project.repositoryUrl) && (
                   <div className="pt-6 border-t border-[rgba(255,255,255,0.1)] space-y-4">
