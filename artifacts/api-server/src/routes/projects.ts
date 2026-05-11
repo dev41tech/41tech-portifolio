@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { db, projectsTable, projectTechnologiesTable, technologiesTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { CreateProjectBody, ListProjectsQueryParams } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
 
@@ -107,8 +107,10 @@ router.get("/:slug/technologies", async (req: Request, res: Response) => {
       return;
     }
 
-    res.json(await getProjectTechnologies(project.id));
+    const techs = await getProjectTechnologies(project.id);
+    res.json(techs);
   } catch (err) {
+    console.error("[GET project technologies] error:", err);
     res.status(500).json({ error: "Erro interno ao buscar tecnologias do projeto" });
   }
 });
@@ -116,34 +118,66 @@ router.get("/:slug/technologies", async (req: Request, res: Response) => {
 router.put("/:slug/technologies", requireAuth, async (req: Request, res: Response) => {
   try {
     const slug = String(req.params.slug);
-    const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
-    const project = rows[0];
+    console.error("[PUT project technologies] slug:", slug);
+    console.error("[PUT project technologies] body:", JSON.stringify(req.body));
+
+    // Validate body
+    const rawIds = req.body?.technologyIds;
+    if (!Array.isArray(rawIds)) {
+      res.status(400).json({ error: "technologyIds deve ser um array" });
+      return;
+    }
+
+    // Normalize: accept number or numeric string, deduplicate
+    const normalizedIds: number[] = [
+      ...new Set(
+        rawIds
+          .map((id: unknown) => Number(id))
+          .filter((n: number) => Number.isInteger(n) && n > 0)
+      ),
+    ];
+    console.error("[PUT project technologies] normalizedIds:", normalizedIds);
+
+    // Find project
+    const projectRows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
+    const project = projectRows[0];
+    console.error("[PUT project technologies] project:", project ? { id: project.id, slug: project.slug } : null);
 
     if (!project) {
       res.status(404).json({ error: "Projeto não encontrado" });
       return;
     }
 
-    const { technologyIds } = req.body;
-    if (!Array.isArray(technologyIds)) {
-      res.status(400).json({ error: "technologyIds deve ser um array" });
+    // Clear all tech links when empty array
+    if (normalizedIds.length === 0) {
+      await db.delete(projectTechnologiesTable).where(eq(projectTechnologiesTable.projectId, project.id));
+      res.json({ success: true, technologyIds: [] });
       return;
     }
 
-    const validIds: number[] = technologyIds.filter(
-      (id: unknown) => typeof id === "number" && Number.isInteger(id) && id > 0
-    );
+    // Validate all IDs exist in technologies table
+    const existingTechRows = await db
+      .select({ id: technologiesTable.id })
+      .from(technologiesTable)
+      .where(inArray(technologiesTable.id, normalizedIds));
+    const existingIds = new Set(existingTechRows.map((r) => r.id));
+    const invalidIds = normalizedIds.filter((id) => !existingIds.has(id));
+    console.error("[PUT project technologies] existingIds:", [...existingIds], "invalidIds:", invalidIds);
 
-    await db.delete(projectTechnologiesTable).where(eq(projectTechnologiesTable.projectId, project.id));
-
-    if (validIds.length > 0) {
-      await db.insert(projectTechnologiesTable).values(
-        validIds.map((technologyId) => ({ projectId: project.id, technologyId }))
-      );
+    if (invalidIds.length > 0) {
+      res.status(400).json({ error: "Tecnologias inválidas", invalidIds });
+      return;
     }
 
-    res.json(await getProjectTechnologies(project.id));
+    // Delete existing links then insert new ones
+    await db.delete(projectTechnologiesTable).where(eq(projectTechnologiesTable.projectId, project.id));
+    await db.insert(projectTechnologiesTable).values(
+      normalizedIds.map((technologyId) => ({ projectId: project.id, technologyId }))
+    );
+
+    res.json({ success: true, technologyIds: normalizedIds });
   } catch (err) {
+    console.error("[PUT project technologies] error:", err);
     res.status(500).json({ error: "Erro interno ao salvar tecnologias do projeto" });
   }
 });

@@ -195,21 +195,7 @@ export default function AdminProjects() {
   const watchedPreviewType = form.watch("previewType");
   const watchedPreviewUrl = form.watch("previewUrl");
 
-  const saveTechnologies = (slug: string) => {
-    setTechsMutation.mutate(
-      { slug, technologyIds: selectedTechIds },
-      {
-        onError: () => {
-          toast({
-            title: "Projeto salvo, mas houve um erro ao salvar as tecnologias",
-            variant: "destructive",
-          });
-        },
-      }
-    );
-  };
-
-  const onSubmit = (values: ProjectFormValues) => {
+  const onSubmit = async (values: ProjectFormValues) => {
     const data = {
       ...values,
       fullDescription: values.fullDescription || null,
@@ -228,37 +214,40 @@ export default function AdminProjects() {
       repositoryUrl: values.repositoryUrl || null,
     };
 
-    if (editingSlug) {
-      updateMutation.mutate(
-        { slug: editingSlug, data },
-        {
-          onSuccess: () => {
-            saveTechnologies(editingSlug);
-            queryClient.invalidateQueries({ queryKey: getListProjectsQueryKey() });
-            toast({ title: "Projeto atualizado com sucesso" });
-            setIsFormOpen(false);
-          },
-          onError: (error: any) => {
-            toast({ title: "Erro ao atualizar projeto", description: error.error || "Tente novamente", variant: "destructive" });
-          },
-        }
-      );
-    } else {
-      createMutation.mutate(
-        { data },
-        {
-          onSuccess: () => {
-            saveTechnologies(values.slug);
-            queryClient.invalidateQueries({ queryKey: getListProjectsQueryKey() });
-            toast({ title: "Projeto criado com sucesso" });
-            setIsFormOpen(false);
-          },
-          onError: (error: any) => {
-            toast({ title: "Erro ao criar projeto", description: error.error || "Tente novamente", variant: "destructive" });
-          },
-        }
-      );
+    let finalSlug: string;
+
+    try {
+      if (editingSlug) {
+        await updateMutation.mutateAsync({ slug: editingSlug, data });
+        finalSlug = editingSlug;
+      } else {
+        const created = await createMutation.mutateAsync({ data });
+        finalSlug = created.slug;
+      }
+    } catch (error: any) {
+      toast({
+        title: editingSlug ? "Erro ao atualizar projeto" : "Erro ao criar projeto",
+        description: error?.data?.error || "Tente novamente",
+        variant: "destructive",
+      });
+      return;
     }
+
+    try {
+      await setTechsMutation.mutateAsync({ slug: finalSlug, technologyIds: selectedTechIds });
+    } catch {
+      toast({
+        title: "Projeto salvo, mas houve erro ao salvar a stack utilizada.",
+        description: "Verifique as tecnologias e tente novamente.",
+        variant: "destructive",
+      });
+      queryClient.invalidateQueries({ queryKey: getListProjectsQueryKey() });
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: getListProjectsQueryKey() });
+    toast({ title: editingSlug ? "Projeto atualizado com sucesso" : "Projeto criado com sucesso" });
+    setIsFormOpen(false);
   };
 
   const confirmDelete = () => {

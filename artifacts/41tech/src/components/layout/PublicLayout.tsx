@@ -8,6 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useGetSiteSettings } from "@workspace/api-client-react";
+import { Logo } from "@/components/brand/Logo";
 
 export function PublicLayout({ children }: { children: ReactNode }) {
   const { data: settings } = useGetSiteSettings();
@@ -24,7 +25,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-50 w-full border-b border-[rgba(255,255,255,0.10)] glassmorphism">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="font-mono font-bold text-lg text-primary tracking-tight">Kauan Funaki</span>
+            <Logo className="text-xl" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
@@ -65,7 +66,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-lg text-primary tracking-tight">Kauan Funaki</span>
+              <Logo className="text-xl" />
             </div>
             <p className="text-muted-foreground max-w-sm mt-4">
               Desenvolvedor Full Stack apaixonado por transformar problemas reais em soluções digitais escaláveis.

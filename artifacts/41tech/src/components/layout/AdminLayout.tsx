@@ -1,17 +1,18 @@
 import { ReactNode, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { 
-  LayoutDashboard, 
-  FolderGit2, 
-  Users, 
-  Briefcase, 
-  Cpu, 
+import {
+  LayoutDashboard,
+  FolderGit2,
+  Users,
+  Briefcase,
+  Cpu,
   LogOut,
   Loader2,
   Settings2
 } from "lucide-react";
 import { useGetMe, useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/brand/Logo";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
@@ -53,7 +54,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background flex text-foreground">
       <aside className="w-64 border-r border-border bg-card flex flex-col fixed inset-y-0 left-0 z-10">
         <div className="h-16 flex items-center px-6 border-b border-border">
-          <span className="font-mono font-bold text-primary">KF ADMIN</span>
+          <Logo className="text-lg" />
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => (

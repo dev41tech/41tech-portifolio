@@ -38,24 +38,29 @@ export function useGetProjectTechnologies<
   return { ...query, queryKey };
 }
 
+export interface SetProjectTechnologiesResponse {
+  success: boolean;
+  technologyIds: number[];
+}
+
 export function useSetProjectTechnologies<TError = unknown, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
-      Technology[],
+      SetProjectTechnologiesResponse,
       TError,
       { slug: string; technologyIds: number[] },
       TContext
     >;
   }
 ): UseMutationResult<
-  Technology[],
+  SetProjectTechnologiesResponse,
   TError,
   { slug: string; technologyIds: number[] },
   TContext
 > {
   return useMutation({
     mutationFn: ({ slug, technologyIds }) =>
-      customFetch<Technology[]>(`/api/projects/${slug}/technologies`, {
+      customFetch<SetProjectTechnologiesResponse>(`/api/projects/${slug}/technologies`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ technologyIds }),

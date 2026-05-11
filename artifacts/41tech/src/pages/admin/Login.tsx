@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Lock, Mail, Loader2 } from "lucide-react";
 import { useLogin, useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
+import { Logo } from "@/components/brand/Logo";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 
@@ -78,7 +79,7 @@ export default function Login() {
             <Lock className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold font-mono tracking-tight text-foreground">KF ADMIN</CardTitle>
+            <Logo className="text-2xl mb-1" />
             <CardDescription className="text-muted-foreground mt-2">
               Acesso restrito à infraestrutura de gestão
             </CardDescription>
