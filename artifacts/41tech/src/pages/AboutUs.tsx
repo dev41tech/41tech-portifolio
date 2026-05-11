@@ -46,7 +46,7 @@ export default function AboutUs() {
               Sobre nós
             </h1>
             <p className="text-xl md:text-2xl text-[#AAB6D3] leading-relaxed">
-              Somos a 41 Tech, o setor de tecnologia do Grupo 41 focado em transformar operação real em sistemas, automações e inteligência de dados.
+              Desenvolvedor Full Stack focado em transformar operação real em sistemas, automações e inteligência de dados.
             </p>
           </motion.div>
         </div>
@@ -77,7 +77,7 @@ export default function AboutUs() {
                 <div className="text-5xl font-extrabold text-primary">B2B</div>
                 <p className="text-[#AAB6D3] text-lg">Focados em empresas que precisam de tecnologia séria para problemas sérios.</p>
                 <div className="pt-4 border-t border-[rgba(255,255,255,0.08)]">
-                  <img src="/logo-white.png" alt="41 Tech" className="h-8 w-auto opacity-80" />
+                  <span className="font-mono font-bold text-lg text-primary tracking-tight">Kauan Funaki</span>
                 </div>
               </div>
             </div>

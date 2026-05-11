@@ -53,7 +53,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background flex text-foreground">
       <aside className="w-64 border-r border-border bg-card flex flex-col fixed inset-y-0 left-0 z-10">
         <div className="h-16 flex items-center px-6 border-b border-border">
-          <span className="font-mono font-bold text-primary">41 TECH ADMIN</span>
+          <span className="font-mono font-bold text-primary">KF ADMIN</span>
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => (

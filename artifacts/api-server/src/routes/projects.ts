@@ -97,47 +97,55 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.get("/:slug/technologies", async (req: Request, res: Response) => {
-  const slug = String(req.params.slug);
-  const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
-  const project = rows[0];
+  try {
+    const slug = String(req.params.slug);
+    const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
+    const project = rows[0];
 
-  if (!project) {
-    res.status(404).json({ error: "Projeto não encontrado" });
-    return;
+    if (!project) {
+      res.status(404).json({ error: "Projeto não encontrado" });
+      return;
+    }
+
+    res.json(await getProjectTechnologies(project.id));
+  } catch (err) {
+    res.status(500).json({ error: "Erro interno ao buscar tecnologias do projeto" });
   }
-
-  res.json(await getProjectTechnologies(project.id));
 });
 
 router.put("/:slug/technologies", requireAuth, async (req: Request, res: Response) => {
-  const slug = String(req.params.slug);
-  const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
-  const project = rows[0];
+  try {
+    const slug = String(req.params.slug);
+    const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
+    const project = rows[0];
 
-  if (!project) {
-    res.status(404).json({ error: "Projeto não encontrado" });
-    return;
-  }
+    if (!project) {
+      res.status(404).json({ error: "Projeto não encontrado" });
+      return;
+    }
 
-  const { technologyIds } = req.body;
-  if (!Array.isArray(technologyIds)) {
-    res.status(400).json({ error: "technologyIds deve ser um array" });
-    return;
-  }
+    const { technologyIds } = req.body;
+    if (!Array.isArray(technologyIds)) {
+      res.status(400).json({ error: "technologyIds deve ser um array" });
+      return;
+    }
 
-  const validIds: number[] = technologyIds.filter(
-    (id: unknown) => typeof id === "number" && Number.isInteger(id) && id > 0
-  );
-
-  await db.delete(projectTechnologiesTable).where(eq(projectTechnologiesTable.projectId, project.id));
-
-  if (validIds.length > 0) {
-    await db.insert(projectTechnologiesTable).values(
-      validIds.map((technologyId) => ({ projectId: project.id, technologyId }))
+    const validIds: number[] = technologyIds.filter(
+      (id: unknown) => typeof id === "number" && Number.isInteger(id) && id > 0
     );
-  }
 
-  res.json(await getProjectTechnologies(project.id));
+    await db.delete(projectTechnologiesTable).where(eq(projectTechnologiesTable.projectId, project.id));
+
+    if (validIds.length > 0) {
+      await db.insert(projectTechnologiesTable).values(
+        validIds.map((technologyId) => ({ projectId: project.id, technologyId }))
+      );
+    }
+
+    res.json(await getProjectTechnologies(project.id));
+  } catch (err) {
+    res.status(500).json({ error: "Erro interno ao salvar tecnologias do projeto" });
+  }
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {

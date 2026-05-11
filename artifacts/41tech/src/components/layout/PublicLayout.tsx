@@ -24,15 +24,15 @@ export function PublicLayout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-50 w-full border-b border-[rgba(255,255,255,0.10)] glassmorphism">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo-white.png" alt="41 Tech" className="h-8 w-auto" />
+            <span className="font-mono font-bold text-lg text-primary tracking-tight">Kauan Funaki</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
             <Link href="/projetos" className="hover:text-primary transition-colors">Projetos</Link>
             <Link href="/equipe" className="hover:text-primary transition-colors">Equipe</Link>
-            <Link href="/sobre-nos" className="hover:text-primary transition-colors">Sobre nós</Link>
+            <Link href="/sobre-nos" className="hover:text-primary transition-colors">Sobre mim</Link>
             <Button asChild className="border-0 text-white bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0]">
-              <a href="#contato" onClick={handleContactClick}>Falar conosco</a>
+              <a href="#contato" onClick={handleContactClick}>Entrar em contato</a>
             </Button>
           </nav>
 
@@ -47,9 +47,9 @@ export function PublicLayout({ children }: { children: ReactNode }) {
                 <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">Início</Link>
                 <Link href="/projetos" className="text-lg font-medium hover:text-primary transition-colors">Projetos</Link>
                 <Link href="/equipe" className="text-lg font-medium hover:text-primary transition-colors">Equipe</Link>
-                <Link href="/sobre-nos" className="text-lg font-medium hover:text-primary transition-colors">Sobre nós</Link>
+                <Link href="/sobre-nos" className="text-lg font-medium hover:text-primary transition-colors">Sobre mim</Link>
                 <Button asChild className="w-full mt-4 bg-gradient-to-r from-[#123DFF] to-[#0A28CC] hover:from-[#1a47ff] hover:to-[#1230e0] border-0 text-white">
-                  <a href="#contato" onClick={handleContactClick}>Falar conosco</a>
+                  <a href="#contato" onClick={handleContactClick}>Entrar em contato</a>
                 </Button>
               </div>
             </SheetContent>
@@ -65,18 +65,18 @@ export function PublicLayout({ children }: { children: ReactNode }) {
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-2">
-              <img src="/logo-white.png" alt="41 Tech" className="h-8 w-auto" />
+              <span className="font-mono font-bold text-lg text-primary tracking-tight">Kauan Funaki</span>
             </div>
             <p className="text-muted-foreground max-w-sm mt-4">
-              Tecnologia aplicada à operação real. Transformamos processos manuais em soluções digitais escaláveis.
+              Desenvolvedor Full Stack apaixonado por transformar problemas reais em soluções digitais escaláveis.
             </p>
           </div>
           <div>
-            <h4 className="font-medium mb-4 text-foreground">Empresa</h4>
+            <h4 className="font-medium mb-4 text-foreground">Navegação</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="/projetos" className="hover:text-primary transition-colors">Projetos</Link></li>
               <li><Link href="/equipe" className="hover:text-primary transition-colors">Equipe</Link></li>
-              <li><Link href="/sobre-nos" className="hover:text-primary transition-colors">Sobre nós</Link></li>
+              <li><Link href="/sobre-nos" className="hover:text-primary transition-colors">Sobre mim</Link></li>
             </ul>
           </div>
           <div>
@@ -98,7 +98,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
         <div className="container mx-auto px-4 mt-12 pt-8 border-t border-[rgba(255,255,255,0.10)] text-sm text-muted-foreground text-center md:text-left">
-          &copy; {new Date().getFullYear()} 41 Tech. Todos os direitos reservados.
+          &copy; {new Date().getFullYear()} Kauan Funaki. Todos os direitos reservados.
         </div>
       </footer>
     </div>

@@ -77,8 +77,8 @@ router.post("/:folder", requireAuth, (req: Request, res: Response) => {
     totalSize += chunk.length;
     if (totalSize > maxSize) {
       aborted = true;
-      req.destroy();
       res.status(413).json({ error: "Arquivo muito grande para esta categoria" });
+      req.resume();
       return;
     }
     chunks.push(chunk);

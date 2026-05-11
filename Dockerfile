@@ -51,6 +51,8 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV FRONTEND_DIST_PATH=/app/frontend
 
+RUN mkdir -p /app/uploads
+
 EXPOSE 3000
 
 CMD ["node", "--enable-source-maps", "./dist/index.mjs"]

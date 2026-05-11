@@ -78,7 +78,7 @@ export default function Login() {
             <Lock className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold font-mono tracking-tight text-foreground">41 TECH ADMIN</CardTitle>
+            <CardTitle className="text-2xl font-bold font-mono tracking-tight text-foreground">KF ADMIN</CardTitle>
             <CardDescription className="text-muted-foreground mt-2">
               Acesso restrito à infraestrutura de gestão
             </CardDescription>
