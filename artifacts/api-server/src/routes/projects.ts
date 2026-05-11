@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { db, projectsTable, projectTechnologiesTable, technologiesTable } from "@workspace/db";
+import { db, projectsTable, projectTechnologiesTable, technologiesTable, projectOwnersTable, teamMembersTable } from "@workspace/db";
 import { eq, inArray } from "drizzle-orm";
 import { CreateProjectBody, ListProjectsQueryParams } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
@@ -181,6 +181,105 @@ router.put("/:slug/technologies", requireAuth, async (req: Request, res: Respons
     res.status(500).json({ error: "Erro interno ao salvar tecnologias do projeto" });
   }
 });
+
+// ---------------------------------------------------------------------------
+// Project Owners (N:N with team_members)
+// ---------------------------------------------------------------------------
+
+async function getProjectOwners(projectId: number) {
+  const rows = await db
+    .select({ member: teamMembersTable })
+    .from(projectOwnersTable)
+    .innerJoin(teamMembersTable, eq(projectOwnersTable.teamMemberId, teamMembersTable.id))
+    .where(eq(projectOwnersTable.projectId, projectId))
+    .orderBy(teamMembersTable.sortOrder);
+  return rows.map((r) => ({
+    id: r.member.id,
+    name: r.member.name,
+    roleTitle: r.member.roleTitle,
+    avatarUrl: r.member.avatarUrl,
+    linkedinUrl: r.member.linkedinUrl,
+    githubUrl: r.member.githubUrl,
+    portfolioUrl: r.member.portfolioUrl,
+  }));
+}
+
+router.get("/:slug/owners", async (req: Request, res: Response) => {
+  try {
+    const slug = String(req.params.slug);
+    const rows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
+    const project = rows[0];
+
+    if (!project) {
+      res.status(404).json({ error: "Projeto não encontrado" });
+      return;
+    }
+
+    res.json(await getProjectOwners(project.id));
+  } catch (err) {
+    console.error("[GET project owners] error:", err);
+    res.status(500).json({ error: "Erro interno ao buscar responsáveis do projeto" });
+  }
+});
+
+router.put("/:slug/owners", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const slug = String(req.params.slug);
+    console.error("[PUT project owners] slug:", slug, "body:", JSON.stringify(req.body));
+
+    const rawIds = req.body?.teamMemberIds;
+    if (!Array.isArray(rawIds)) {
+      res.status(400).json({ error: "teamMemberIds deve ser um array" });
+      return;
+    }
+
+    const normalizedIds: number[] = [
+      ...new Set(
+        rawIds
+          .map((id: unknown) => Number(id))
+          .filter((n: number) => Number.isInteger(n) && n > 0)
+      ),
+    ];
+
+    const projectRows = await db.select().from(projectsTable).where(eq(projectsTable.slug, slug)).limit(1);
+    const project = projectRows[0];
+
+    if (!project) {
+      res.status(404).json({ error: "Projeto não encontrado" });
+      return;
+    }
+
+    if (normalizedIds.length === 0) {
+      await db.delete(projectOwnersTable).where(eq(projectOwnersTable.projectId, project.id));
+      res.json({ success: true, teamMemberIds: [] });
+      return;
+    }
+
+    const existingMemberRows = await db
+      .select({ id: teamMembersTable.id })
+      .from(teamMembersTable)
+      .where(inArray(teamMembersTable.id, normalizedIds));
+    const existingIds = new Set(existingMemberRows.map((r) => r.id));
+    const invalidIds = normalizedIds.filter((id) => !existingIds.has(id));
+
+    if (invalidIds.length > 0) {
+      res.status(400).json({ error: "Membros inválidos", invalidIds });
+      return;
+    }
+
+    await db.delete(projectOwnersTable).where(eq(projectOwnersTable.projectId, project.id));
+    await db.insert(projectOwnersTable).values(
+      normalizedIds.map((teamMemberId) => ({ projectId: project.id, teamMemberId }))
+    );
+
+    res.json({ success: true, teamMemberIds: normalizedIds });
+  } catch (err) {
+    console.error("[PUT project owners] error:", err);
+    res.status(500).json({ error: "Erro interno ao salvar responsáveis do projeto" });
+  }
+});
+
+// ---------------------------------------------------------------------------
 
 router.get("/:slug", async (req: Request, res: Response) => {
   const slug = String(req.params.slug);

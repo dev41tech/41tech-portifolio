@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRoute, Link } from "wouter";
-import { useGetProject, getGetProjectQueryKey, useGetSiteSettings, useGetProjectTechnologies } from "@workspace/api-client-react";
-import { ArrowLeft, ExternalLink, Github, LayoutTemplate, AlertTriangle, Zap, TrendingUp, Send } from "lucide-react";
+import { useGetProject, getGetProjectQueryKey, useGetSiteSettings, useGetProjectTechnologies, useGetProjectOwners } from "@workspace/api-client-react";
+import { ArrowLeft, ExternalLink, Github, LayoutTemplate, AlertTriangle, Zap, TrendingUp, Send, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,9 @@ export default function ProjectDetail() {
 
   const { data: settings } = useGetSiteSettings();
   const { data: projectTechs } = useGetProjectTechnologies(slug, {
+    query: { enabled: !!slug }
+  });
+  const { data: projectOwners } = useGetProjectOwners(slug, {
     query: { enabled: !!slug }
   });
   const [previewError, setPreviewError] = useState(false);
@@ -328,6 +331,46 @@ export default function ProjectDetail() {
                             <span className="text-[#00D8FF] font-bold text-sm leading-none">{tech.name.charAt(0)}</span>
                           )}
                           <span className="font-mono">{tech.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {projectOwners && projectOwners.length > 0 && (
+                  <div className="pt-6 border-t border-[rgba(255,255,255,0.1)]">
+                    <span className="text-sm font-bold text-[#AAB6D3] uppercase tracking-wider block mb-4">Responsáveis</span>
+                    <div className="space-y-3">
+                      {projectOwners.map((owner) => (
+                        <div key={owner.id} className="flex items-center gap-3">
+                          {owner.avatarUrl ? (
+                            <img
+                              src={owner.avatarUrl}
+                              alt={owner.name}
+                              className="w-10 h-10 rounded-full object-cover shrink-0 border border-[rgba(255,255,255,0.1)]"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-primary font-bold text-sm">
+                              {owner.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-white truncate">{owner.name}</p>
+                            <p className="text-xs text-[#AAB6D3] truncate">{owner.roleTitle}</p>
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            {owner.linkedinUrl && (
+                              <a href={owner.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-[#AAB6D3] hover:text-[#00D8FF] transition-colors">
+                                <Linkedin className="w-4 h-4" />
+                              </a>
+                            )}
+                            {owner.githubUrl && (
+                              <a href={owner.githubUrl} target="_blank" rel="noopener noreferrer" className="text-[#AAB6D3] hover:text-[#00D8FF] transition-colors">
+                                <Github className="w-4 h-4" />
+                              </a>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

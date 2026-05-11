@@ -11,8 +11,11 @@ import {
   useUpdateProject,
   useDeleteProject,
   useListTechnologies,
+  useListTeamMembers,
   useGetProjectTechnologies,
   useSetProjectTechnologies,
+  useGetProjectOwners,
+  useSetProjectOwners,
 } from "@workspace/api-client-react";
 
 import { Button } from "@/components/ui/button";
@@ -89,25 +92,37 @@ export default function AdminProjects() {
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
   const [selectedTechIds, setSelectedTechIds] = useState<number[]>([]);
+  const [selectedOwnerIds, setSelectedOwnerIds] = useState<number[]>([]);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const { data: projects, isLoading } = useListProjects();
   const { data: allTechnologies } = useListTechnologies();
+  const { data: allTeamMembers } = useListTeamMembers();
   const { data: existingTechs } = useGetProjectTechnologies(editingSlug ?? "", {
+    query: { enabled: !!editingSlug && isFormOpen },
+  });
+  const { data: existingOwners } = useGetProjectOwners(editingSlug ?? "", {
     query: { enabled: !!editingSlug && isFormOpen },
   });
   const createMutation = useCreateProject();
   const updateMutation = useUpdateProject();
   const deleteMutation = useDeleteProject();
   const setTechsMutation = useSetProjectTechnologies();
+  const setOwnersMutation = useSetProjectOwners();
 
   useEffect(() => {
     if (existingTechs !== undefined) {
       setSelectedTechIds(existingTechs.map((t) => t.id));
     }
   }, [existingTechs]);
+
+  useEffect(() => {
+    if (existingOwners !== undefined) {
+      setSelectedOwnerIds(existingOwners.map((o) => o.id));
+    }
+  }, [existingOwners]);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -157,6 +172,7 @@ export default function AdminProjects() {
       featured: false,
     });
     setSelectedTechIds([]);
+    setSelectedOwnerIds([]);
     setEditingSlug(null);
     setIsFormOpen(true);
   };
@@ -239,6 +255,18 @@ export default function AdminProjects() {
       toast({
         title: "Projeto salvo, mas houve erro ao salvar a stack utilizada.",
         description: "Verifique as tecnologias e tente novamente.",
+        variant: "destructive",
+      });
+      queryClient.invalidateQueries({ queryKey: getListProjectsQueryKey() });
+      return;
+    }
+
+    try {
+      await setOwnersMutation.mutateAsync({ slug: finalSlug, teamMemberIds: selectedOwnerIds });
+    } catch {
+      toast({
+        title: "Projeto salvo, mas houve erro ao salvar os responsáveis.",
+        description: "Verifique os responsáveis e tente novamente.",
         variant: "destructive",
       });
       queryClient.invalidateQueries({ queryKey: getListProjectsQueryKey() });
@@ -555,6 +583,49 @@ export default function AdminProjects() {
                     )}
                   </div>
 
+                  {/* Responsáveis pelo projeto */}
+                  <div className="border-t border-border pt-6 space-y-3">
+                    <h3 className="font-medium text-lg">Responsáveis pelo projeto</h3>
+                    <p className="text-sm text-muted-foreground -mt-1">Selecione os membros da equipe que participaram deste projeto.</p>
+                    {!allTeamMembers?.length ? (
+                      <p className="text-sm text-muted-foreground italic">Nenhum membro de equipe cadastrado. Acesse a seção Equipe para adicionar.</p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-1 max-h-52 overflow-y-auto border border-border rounded-md p-3 bg-background">
+                        {allTeamMembers.map((member) => (
+                          <label
+                            key={member.id}
+                            className="flex items-center gap-3 cursor-pointer py-2 px-2 rounded hover:bg-muted transition-colors select-none"
+                          >
+                            <Checkbox
+                              checked={selectedOwnerIds.includes(member.id)}
+                              onCheckedChange={(checked) => {
+                                setSelectedOwnerIds((prev) =>
+                                  checked ? [...prev, member.id] : prev.filter((id) => id !== member.id)
+                                );
+                              }}
+                            />
+                            {member.avatarUrl ? (
+                              <img
+                                src={member.avatarUrl}
+                                alt={member.name}
+                                className="w-7 h-7 rounded-full object-cover shrink-0 bg-muted"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                              />
+                            ) : (
+                              <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-primary font-bold text-xs">
+                                {member.name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <span className="text-sm font-medium truncate block">{member.name}</span>
+                              <span className="text-xs text-muted-foreground truncate block">{member.roleTitle}</span>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <FormField control={form.control} name="featured" render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border p-4 bg-card">
                       <FormControl>
@@ -572,8 +643,8 @@ export default function AdminProjects() {
 
             <div className="shrink-0 p-6 border-t border-border flex justify-end gap-2 bg-background">
               <Button variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
-              <Button type="submit" form="project-form" disabled={createMutation.isPending || updateMutation.isPending || setTechsMutation.isPending}>
-                {(createMutation.isPending || updateMutation.isPending || setTechsMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Button type="submit" form="project-form" disabled={createMutation.isPending || updateMutation.isPending || setTechsMutation.isPending || setOwnersMutation.isPending}>
+                {(createMutation.isPending || updateMutation.isPending || setTechsMutation.isPending || setOwnersMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Salvar
               </Button>
             </div>
